@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	"context"
 	"fmt"
+	extenderv1 "k8s.io/kube-scheduler/extender/v1"
 	"reflect"
 	"time"
 
@@ -60,25 +61,26 @@ const (
 // framework is the component responsible for initializing and running scheduler
 // plugins.
 type framework struct {
-	registry              Registry
-	snapshotSharedLister  schedulerlisters.SharedLister
-	waitingPods           *waitingPodsMap
-	pluginNameToWeightMap map[string]int
-	queueSortPlugins      []QueueSortPlugin
-	preFilterPlugins      []PreFilterPlugin
-	filterPlugins         []FilterPlugin
-	preScorePlugins       []PreScorePlugin
-	scorePlugins          []ScorePlugin
-	reservePlugins        []ReservePlugin
-	preBindPlugins        []PreBindPlugin
-	bindPlugins           []BindPlugin
-	postBindPlugins       []PostBindPlugin
-	unreservePlugins      []UnreservePlugin
-	permitPlugins         []PermitPlugin
+	registry                Registry
+	snapshotSharedLister    schedulerlisters.SharedLister
+	waitingPods             *waitingPodsMap
+	pluginNameToWeightMap   map[string]int
+	queueSortPlugins        []QueueSortPlugin
+	preFilterPlugins        []PreFilterPlugin
+	filterPlugins           []FilterPlugin
+	preScorePlugins         []PreScorePlugin
+	scorePlugins            []ScorePlugin
+	reservePlugins          []ReservePlugin
+	preBindPlugins          []PreBindPlugin
+	bindPlugins             []BindPlugin
+	postBindPlugins         []PostBindPlugin
+	unreservePlugins        []UnreservePlugin
+	permitPlugins           []PermitPlugin
+	victimsSelectionPlugins []VictimsSelectionPlugin
 
-	clientSet       clientset.Interface
-	informerFactory informers.SharedInformerFactory
-	volumeBinder    scheduling.SchedulerVolumeBinder
+	clientSet               clientset.Interface
+	informerFactory         informers.SharedInformerFactory
+	volumeBinder            scheduling.SchedulerVolumeBinder
 
 	metricsRecorder *metricsRecorder
 
@@ -111,6 +113,7 @@ func (f *framework) getExtensionPoints(plugins *config.Plugins) []extensionPoint
 		{plugins.Unreserve, &f.unreservePlugins},
 		{plugins.Permit, &f.permitPlugins},
 		{plugins.QueueSort, &f.queueSortPlugins},
+		{plugins.VictimsSelection, &f.victimsSelectionPlugins},
 	}
 }
 
@@ -259,6 +262,12 @@ func NewFramework(r Registry, plugins *config.Plugins, args []config.PluginConfi
 	if len(f.bindPlugins) == 0 {
 		return nil, fmt.Errorf("at least one bind plugin is needed")
 	}
+	if len(f.victimsSelectionPlugins) == 0 {
+		return nil, fmt.Errorf("no victims selection plugin is enabled")
+	}
+	if len(f.victimsSelectionPlugins) > 1 {
+		return nil, fmt.Errorf("only one victims selection plugin can be enabled")
+	}
 
 	return f, nil
 }
@@ -291,6 +300,38 @@ func updatePluginList(pluginList interface{}, pluginSet *config.PluginSet, plugi
 		plugins.Set(newPlugins)
 	}
 	return nil
+}
+
+func (f *framework) RunSelectVictimCandidatesOnNode(
+	ctx context.Context,
+	state *CycleState,
+	preemptor *v1.Pod,
+	nodeName string,
+	victimsEligibleToPreemption []*v1.Pod,
+	canPotentialVictimsMakeEnoughRoom func(potentialVictims []*v1.Pod) (bool, error),
+	filterPDBViolationPods func(pods []*v1.Pod) (violatingPods, nonViolatingPods []*v1.Pod),
+) ([]*v1.Pod, *Status) {
+	return f.victimsSelectionPlugins[0].SelectVictimCandidatesOnNode(
+		ctx,
+		state,
+		preemptor,
+		nodeName,
+		victimsEligibleToPreemption,
+		canPotentialVictimsMakeEnoughRoom,
+		filterPDBViolationPods,
+	)
+}
+
+func (f *framework) RunPickOneNodeForPreemption(
+	ctx context.Context,
+	state *CycleState,
+	nodeNameToVictims map[string]*extenderv1.Victims,
+) (string, *Status) {
+	return f.victimsSelectionPlugins[0].PickOneNodeForPreemption(
+		ctx,
+		state,
+		nodeNameToVictims,
+	)
 }
 
 // QueueSortFunc returns the function to sort pods in scheduling queue

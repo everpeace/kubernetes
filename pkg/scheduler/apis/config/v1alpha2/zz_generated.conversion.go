@@ -483,6 +483,15 @@ func autoConvert_v1alpha2_Plugins_To_config_Plugins(in *v1alpha2.Plugins, out *c
 	} else {
 		out.Unreserve = nil
 	}
+	if in.VictimsSelection != nil {
+		in, out := &in.VictimsSelection, &out.VictimsSelection
+		*out = new(config.PluginSet)
+		if err := Convert_v1alpha2_PluginSet_To_config_PluginSet(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.VictimsSelection = nil
+	}
 	return nil
 }
 
@@ -590,6 +599,15 @@ func autoConvert_config_Plugins_To_v1alpha2_Plugins(in *config.Plugins, out *v1a
 		}
 	} else {
 		out.Unreserve = nil
+	}
+	if in.VictimsSelection != nil {
+		in, out := &in.VictimsSelection, &out.VictimsSelection
+		*out = new(v1alpha2.PluginSet)
+		if err := Convert_config_PluginSet_To_v1alpha2_PluginSet(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.VictimsSelection = nil
 	}
 	return nil
 }

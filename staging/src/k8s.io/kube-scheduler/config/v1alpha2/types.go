@@ -169,6 +169,9 @@ type Plugins struct {
 
 	// Unreserve is a list of plugins invoked when a pod that was previously reserved is rejected in a later phase.
 	Unreserve *PluginSet `json:"unreserve,omitempty"`
+
+	// VictimsSelection is a list of plugins that should be invoked when selecting victim pods in preemption.
+	VictimsSelection *PluginSet `json:"victimsSelection,omitempty"`
 }
 
 // PluginSet specifies enabled and disabled plugins for an extension point.

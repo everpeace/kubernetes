@@ -33,6 +33,7 @@ import (
 	"k8s.io/kubernetes/pkg/scheduler/apis/config"
 	schedulerlisters "k8s.io/kubernetes/pkg/scheduler/listers"
 	schedulernodeinfo "k8s.io/kubernetes/pkg/scheduler/nodeinfo"
+	extenderv1 "k8s.io/kube-scheduler/extender/v1"
 )
 
 // NodeScoreList declares a list of nodes and their scores.
@@ -405,6 +406,25 @@ type BindPlugin interface {
 	Bind(ctx context.Context, state *CycleState, p *v1.Pod, nodeName string) *Status
 }
 
+type VictimsSelectionPlugin interface {
+	Plugin
+
+	SelectVictimCandidatesOnNode(
+		ctx context.Context,
+		state *CycleState,
+		preemptor *v1.Pod, nodeName string,
+		victimsEligibleToPreemption []*v1.Pod,
+		canPotentialVictimsMakeEnoughRoom func(potentialVictims []*v1.Pod) (bool, error),
+		filtePDBViolationPods func(pods []*v1.Pod) (violatingPods, nonViolatingPods []*v1.Pod),
+	) ([]*v1.Pod, *Status)
+
+	PickOneNodeForPreemption(
+		ctx context.Context,
+		state *CycleState,
+		nodeNameToVictims map[string]*extenderv1.Victims,
+	) (string, *Status)
+}
+
 // Framework manages the set of plugins in use by the scheduling framework.
 // Configured plugins are called at specified points in a scheduling context.
 type Framework interface {
@@ -482,6 +502,21 @@ type Framework interface {
 	// or "Success". If none of the plugins handled binding, RunBindPlugins returns
 	// code=5("skip") status.
 	RunBindPlugins(ctx context.Context, state *CycleState, pod *v1.Pod, nodeName string) *Status
+
+	RunSelectVictimCandidatesOnNode(
+		ctx context.Context,
+		state *CycleState,
+		preemptor *v1.Pod, nodeName string,
+		victimsEligibleToPreemption []*v1.Pod,
+		canPotentialVictimsMakeEnoughRoom func(potentialVictims []*v1.Pod) (bool, error),
+		filterPDBViolationPods func(pods []*v1.Pod) (violatingPods, nonViolatingPods []*v1.Pod),
+	) ([]*v1.Pod, *Status)
+
+	RunPickOneNodeForPreemption(
+		ctx context.Context,
+		state *CycleState,
+		nodeNameToVictims map[string]*extenderv1.Victims,
+	) (string, *Status)
 
 	// HasFilterPlugins returns true if at least one filter plugin is defined.
 	HasFilterPlugins() bool

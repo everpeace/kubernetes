@@ -19,7 +19,6 @@ package core
 import (
 	"context"
 	"fmt"
-	"math"
 	"math/rand"
 	"sort"
 	"strings"
@@ -267,7 +266,13 @@ func (g *genericScheduler) selectHost(nodeScoreList framework.NodeScoreList) (st
 // other pods with the same priority. The nominated pod prevents other pods from
 // using the nominated resources and the nominated pod could take a long time
 // before it is retried after many other pending pods.
-func (g *genericScheduler) Preempt(ctx context.Context, prof *profile.Profile, state *framework.CycleState, pod *v1.Pod, scheduleErr error) (*v1.Node, []*v1.Pod, []*v1.Pod, error) {
+func (g *genericScheduler) Preempt(
+	ctx context.Context,
+	prof *profile.Profile,
+	state *framework.CycleState,
+	pod *v1.Pod,
+	scheduleErr error,
+) (*v1.Node, []*v1.Pod, []*v1.Pod, error) {
 	// Scheduler may return various types of errors. Consider preemption only if
 	// the error is of type FitError.
 	fitError, ok := scheduleErr.(*FitError)
@@ -311,7 +316,23 @@ func (g *genericScheduler) Preempt(ctx context.Context, prof *profile.Profile, s
 		return nil, nil, nil, err
 	}
 
-	candidateNode := pickOneNodeForPreemption(nodeToVictims)
+	nodeNameToVictims := map[string]*extenderv1.Victims{}
+	for n, vs := range nodeToVictims {
+		nodeNameToVictims[n.GetName()] = vs
+	}
+	victimNodeName, status := prof.RunPickOneNodeForPreemption(ctx, state, nodeNameToVictims)
+	if !status.IsSuccess() {
+		return nil, nil, nil, status.AsError()
+	}
+	var candidateNode *v1.Node
+	if victimNodeName != "" {
+		for _, n := range potentialNodes {
+			if n.Node().GetName() == victimNodeName {
+				candidateNode = n.Node()
+				break
+			}
+		}
+	}
 	if candidateNode == nil {
 		return nil, nil, nil, nil
 	}
@@ -707,144 +728,6 @@ func (g *genericScheduler) prioritizeNodes(
 	return result, nil
 }
 
-// pickOneNodeForPreemption chooses one node among the given nodes. It assumes
-// pods in each map entry are ordered by decreasing priority.
-// It picks a node based on the following criteria:
-// 1. A node with minimum number of PDB violations.
-// 2. A node with minimum highest priority victim is picked.
-// 3. Ties are broken by sum of priorities of all victims.
-// 4. If there are still ties, node with the minimum number of victims is picked.
-// 5. If there are still ties, node with the latest start time of all highest priority victims is picked.
-// 6. If there are still ties, the first such node is picked (sort of randomly).
-// The 'minNodes1' and 'minNodes2' are being reused here to save the memory
-// allocation and garbage collection time.
-func pickOneNodeForPreemption(nodesToVictims map[*v1.Node]*extenderv1.Victims) *v1.Node {
-	if len(nodesToVictims) == 0 {
-		return nil
-	}
-	minNumPDBViolatingPods := int64(math.MaxInt32)
-	var minNodes1 []*v1.Node
-	lenNodes1 := 0
-	for node, victims := range nodesToVictims {
-		if len(victims.Pods) == 0 {
-			// We found a node that doesn't need any preemption. Return it!
-			// This should happen rarely when one or more pods are terminated between
-			// the time that scheduler tries to schedule the pod and the time that
-			// preemption logic tries to find nodes for preemption.
-			return node
-		}
-		numPDBViolatingPods := victims.NumPDBViolations
-		if numPDBViolatingPods < minNumPDBViolatingPods {
-			minNumPDBViolatingPods = numPDBViolatingPods
-			minNodes1 = nil
-			lenNodes1 = 0
-		}
-		if numPDBViolatingPods == minNumPDBViolatingPods {
-			minNodes1 = append(minNodes1, node)
-			lenNodes1++
-		}
-	}
-	if lenNodes1 == 1 {
-		return minNodes1[0]
-	}
-
-	// There are more than one node with minimum number PDB violating pods. Find
-	// the one with minimum highest priority victim.
-	minHighestPriority := int32(math.MaxInt32)
-	var minNodes2 = make([]*v1.Node, lenNodes1)
-	lenNodes2 := 0
-	for i := 0; i < lenNodes1; i++ {
-		node := minNodes1[i]
-		victims := nodesToVictims[node]
-		// highestPodPriority is the highest priority among the victims on this node.
-		highestPodPriority := podutil.GetPodPriority(victims.Pods[0])
-		if highestPodPriority < minHighestPriority {
-			minHighestPriority = highestPodPriority
-			lenNodes2 = 0
-		}
-		if highestPodPriority == minHighestPriority {
-			minNodes2[lenNodes2] = node
-			lenNodes2++
-		}
-	}
-	if lenNodes2 == 1 {
-		return minNodes2[0]
-	}
-
-	// There are a few nodes with minimum highest priority victim. Find the
-	// smallest sum of priorities.
-	minSumPriorities := int64(math.MaxInt64)
-	lenNodes1 = 0
-	for i := 0; i < lenNodes2; i++ {
-		var sumPriorities int64
-		node := minNodes2[i]
-		for _, pod := range nodesToVictims[node].Pods {
-			// We add MaxInt32+1 to all priorities to make all of them >= 0. This is
-			// needed so that a node with a few pods with negative priority is not
-			// picked over a node with a smaller number of pods with the same negative
-			// priority (and similar scenarios).
-			sumPriorities += int64(podutil.GetPodPriority(pod)) + int64(math.MaxInt32+1)
-		}
-		if sumPriorities < minSumPriorities {
-			minSumPriorities = sumPriorities
-			lenNodes1 = 0
-		}
-		if sumPriorities == minSumPriorities {
-			minNodes1[lenNodes1] = node
-			lenNodes1++
-		}
-	}
-	if lenNodes1 == 1 {
-		return minNodes1[0]
-	}
-
-	// There are a few nodes with minimum highest priority victim and sum of priorities.
-	// Find one with the minimum number of pods.
-	minNumPods := math.MaxInt32
-	lenNodes2 = 0
-	for i := 0; i < lenNodes1; i++ {
-		node := minNodes1[i]
-		numPods := len(nodesToVictims[node].Pods)
-		if numPods < minNumPods {
-			minNumPods = numPods
-			lenNodes2 = 0
-		}
-		if numPods == minNumPods {
-			minNodes2[lenNodes2] = node
-			lenNodes2++
-		}
-	}
-	if lenNodes2 == 1 {
-		return minNodes2[0]
-	}
-
-	// There are a few nodes with same number of pods.
-	// Find the node that satisfies latest(earliestStartTime(all highest-priority pods on node))
-	latestStartTime := util.GetEarliestPodStartTime(nodesToVictims[minNodes2[0]])
-	if latestStartTime == nil {
-		// If the earliest start time of all pods on the 1st node is nil, just return it,
-		// which is not expected to happen.
-		klog.Errorf("earliestStartTime is nil for node %s. Should not reach here.", minNodes2[0])
-		return minNodes2[0]
-	}
-	nodeToReturn := minNodes2[0]
-	for i := 1; i < lenNodes2; i++ {
-		node := minNodes2[i]
-		// Get earliest start time of all pods on the current node.
-		earliestStartTimeOnNode := util.GetEarliestPodStartTime(nodesToVictims[node])
-		if earliestStartTimeOnNode == nil {
-			klog.Errorf("earliestStartTime is nil for node %s. Should not reach here.", node)
-			continue
-		}
-		if earliestStartTimeOnNode.After(latestStartTime.Time) {
-			latestStartTime = earliestStartTimeOnNode
-			nodeToReturn = node
-		}
-	}
-
-	return nodeToReturn
-}
-
 // selectNodesForPreemption finds all the nodes with possible victims for
 // preemption in parallel.
 func (g *genericScheduler) selectNodesForPreemption(
@@ -945,35 +828,14 @@ func (g *genericScheduler) selectVictimsOnNode(
 	nodeInfo *schedulernodeinfo.NodeInfo,
 	pdbs []*policy.PodDisruptionBudget,
 ) ([]*v1.Pod, int, bool) {
-	var potentialVictims []*v1.Pod
+	var victimsEligibleToPreempt []*v1.Pod
 
-	removePod := func(rp *v1.Pod) error {
-		if err := nodeInfo.RemovePod(rp); err != nil {
-			return err
-		}
-		status := prof.RunPreFilterExtensionRemovePod(ctx, state, pod, rp, nodeInfo)
-		if !status.IsSuccess() {
-			return status.AsError()
-		}
-		return nil
-	}
-	addPod := func(ap *v1.Pod) error {
-		nodeInfo.AddPod(ap)
-		status := prof.RunPreFilterExtensionAddPod(ctx, state, pod, ap, nodeInfo)
-		if !status.IsSuccess() {
-			return status.AsError()
-		}
-		return nil
-	}
 	// As the first step, remove all the lower priority pods from the node and
 	// check if the given pod can be scheduled.
 	podPriority := podutil.GetPodPriority(pod)
 	for _, p := range nodeInfo.Pods() {
 		if podutil.GetPodPriority(p) < podPriority {
-			potentialVictims = append(potentialVictims, p)
-			if err := removePod(p); err != nil {
-				return nil, 0, false
-			}
+			victimsEligibleToPreempt = append(victimsEligibleToPreempt, p)
 		}
 	}
 	// If the new pod does not fit after removing all the lower priority pods,
@@ -989,43 +851,85 @@ func (g *genericScheduler) selectVictimsOnNode(
 
 		return nil, 0, false
 	}
-	var victims []*v1.Pod
-	numViolatingVictim := 0
-	sort.Slice(potentialVictims, func(i, j int) bool { return util.MoreImportantPod(potentialVictims[i], potentialVictims[j]) })
-	// Try to reprieve as many pods as possible. We first try to reprieve the PDB
-	// violating victims and then other non-violating ones. In both cases, we start
-	// from the highest priority victims.
-	violatingVictims, nonViolatingVictims := filterPodsWithPDBViolation(potentialVictims, pdbs)
-	reprievePod := func(p *v1.Pod) (bool, error) {
-		if err := addPod(p); err != nil {
-			return false, err
+
+	sort.Slice(victimsEligibleToPreempt, func(i, j int) bool { return util.MoreImportantPod(victimsEligibleToPreempt[i], victimsEligibleToPreempt[j]) })
+
+	removePod := func(rp *v1.Pod, state *framework.CycleState, nodeInfo *schedulernodeinfo.NodeInfo) error {
+		if err := nodeInfo.RemovePod(rp); err != nil {
+			return err
 		}
-		fits, _, _ := g.podPassesFiltersOnNode(ctx, prof, state, pod, nodeInfo)
-		if !fits {
-			if err := removePod(p); err != nil {
+		status := prof.RunPreFilterExtensionRemovePod(ctx, state, pod, rp, nodeInfo)
+		if !status.IsSuccess() {
+			return status.AsError()
+		}
+		return nil
+	}
+
+	canSelectedVictimsMakeEnoughRoom := func(victims []*v1.Pod) (bool, error) {
+		nodeInfoCopy := nodeInfo.Clone()
+		stateCopy := state.Clone()
+		for _, v := range victims {
+			if err := removePod(v, stateCopy, nodeInfoCopy); err != nil {
 				return false, err
 			}
-			victims = append(victims, p)
-			klog.V(5).Infof("Pod %v/%v is a potential preemption victim on node %v.", p.Namespace, p.Name, nodeInfo.Node().Name)
+		}
+		fits, _, err := g.podPassesFiltersOnNode(ctx, prof, stateCopy, pod, nodeInfoCopy)
+		if err != nil {
+			return false, err
 		}
 		return fits, nil
 	}
-	for _, p := range violatingVictims {
-		if fits, err := reprievePod(p); err != nil {
-			klog.Warningf("Failed to reprieve pod %q: %v", p.Name, err)
+	filterPDBViolationPods := func(pods []*v1.Pod) (violatingPods, nonViolatingPods []*v1.Pod){
+		return filterPodsWithPDBViolation(pods, pdbs)
+	}
+
+	selectedVictims, status := prof.Framework.RunSelectVictimCandidatesOnNode(
+		ctx,
+		state,
+		pod,
+		nodeInfo.Node().GetName(),
+		victimsEligibleToPreempt,
+		canSelectedVictimsMakeEnoughRoom,
+		filterPDBViolationPods,
+	)
+
+	if !status.IsSuccess() {
+		klog.Warningf("Encountered error while running SelectVictimCandidatesOnNode on node %v: %v", nodeInfo.Node().Name, status.AsError())
+		return nil, 0, false
+	}
+
+	// assert all the selectedVictims are in victimsEligibleToPreempt
+	for _, v := range selectedVictims {
+		includes := func(p *v1.Pod) bool {
+			for _, e := range victimsEligibleToPreempt {
+				if p.UID == e.UID {
+					return true
+				}
+			}
+			return false
+		}
+		if !includes(v) {
+			klog.Warningf("a selected victim of SelectVictimCandidatesOnNode on node %v must be included in passed victimsEligibleToPreemption: %v", nodeInfo.Node().Name, v)
 			return nil, 0, false
-		} else if !fits {
-			numViolatingVictim++
 		}
 	}
-	// Now we try to reprieve non-violating victims.
-	for _, p := range nonViolatingVictims {
-		if _, err := reprievePod(p); err != nil {
-			klog.Warningf("Failed to reprieve pod %q: %v", p.Name, err)
-			return nil, 0, false
-		}
+
+	// assert selectedVictims must make enough room for the preemptor
+	fits, err := canSelectedVictimsMakeEnoughRoom(selectedVictims)
+	if err != nil {
+		return nil, 0, false
 	}
-	return victims, numViolatingVictim, true
+	if !fits {
+		selectedVictimNames := []string{}
+		for _, v:= range selectedVictims {
+			selectedVictimNames = append(selectedVictimNames, fmt.Sprintf("%s/%s", v.GetNamespace(), v.GetName()))
+		}
+		klog.Warningf("the result of SelectVictimCandidatesOnNode on node %v can't make enough room on node %v: %v", nodeInfo.Node().Name, selectedVictimNames)
+		return nil, 0, false
+	}
+
+	violatingVictims, _ := filterPDBViolationPods(selectedVictims)
+	return selectedVictims, len(violatingVictims), true
 }
 
 // nodesWherePreemptionMightHelp returns a list of nodes with failed predicates

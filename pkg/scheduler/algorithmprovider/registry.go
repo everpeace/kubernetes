@@ -130,6 +130,9 @@ func getDefaultConfig() *schedulerapi.Plugins {
 				{Name: defaultbinder.Name},
 			},
 		},
+		VictimsSelection: &schedulerapi.PluginSet{
+			Enabled:[]schedulerapi.Plugin{},
+		},
 	}
 }
 

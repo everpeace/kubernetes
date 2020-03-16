@@ -278,6 +278,11 @@ func (in *Plugins) DeepCopyInto(out *Plugins) {
 		*out = new(PluginSet)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.VictimsSelection != nil {
+		in, out := &in.VictimsSelection, &out.VictimsSelection
+		*out = new(PluginSet)
+		(*in).DeepCopyInto(*out)
+	}
 	return
 }
 
