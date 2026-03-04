@@ -695,7 +695,7 @@ type DeviceAttributeListType struct {
 }
 
 // DeviceAttributeListMaxLength is the maximum number of entries in a list attribute value.
-const DeviceAttributeListMaxLength = 64
+const DeviceAttributeListMaxLength = 4
 
 // DeviceAttributeMaxValueLength is the maximum length of a string or version attribute value.
 const DeviceAttributeMaxValueLength = 64
