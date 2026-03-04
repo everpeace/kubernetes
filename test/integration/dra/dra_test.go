@@ -228,6 +228,7 @@ func TestDRA(t *testing.T) {
 				features.DRAPrioritizedList:           true,
 				features.DRAResourceClaimDeviceStatus: true,
 				features.DRAExtendedResource:          true,
+				features.DRAListTypeAttributes:        true,
 			},
 			f: func(tCtx ktesting.TContext) {
 				// These tests must run in parallel as much as possible to keep overall runtime low!

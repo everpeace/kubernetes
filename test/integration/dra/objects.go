@@ -36,6 +36,7 @@ func NewMaxResourceSlices() map[string]*resourceapi.ResourceSlice {
 		"basic":                             newBasicResourceSlice(resourceapi.ResourceSliceMaxDevices),
 		"with-taints-and-consumes-counters": newResourceSliceWithTaintsAndConsumesCounters(),
 		"with-shared-counters":              newSharedCountersResourceSlice(),
+		"with-attribute-lists":              newResourceSliceWithAttributeLists(),
 	}
 	return slices
 }
@@ -118,6 +119,39 @@ func newSharedCountersResourceSlice() *resourceapi.ResourceSlice {
 		})
 	}
 	slice.Spec.SharedCounters = counterSets
+	return slice
+}
+
+func newResourceSliceWithAttributeLists() *resourceapi.ResourceSlice {
+	slice := commonResourceSlice()
+	slice.Spec.PerDeviceNodeSelection = ptr.To(true)
+	var devices []resourceapi.Device
+	for i := range resourceapi.ResourceSliceMaxDevices {
+		devices = append(devices, resourceapi.Device{
+			Name: maxDNSLabel(i),
+			// Use attributes rather than capacity since it is more expensive.
+			Attributes: func() map[resourceapi.QualifiedName]resourceapi.DeviceAttribute {
+				attributes := make(map[resourceapi.QualifiedName]resourceapi.DeviceAttribute)
+				// The first one is a string value
+				attributes[maxResourceQualifiedName(0)] = resourceapi.DeviceAttribute{
+					StringValue: ptr.To(maxDNSLabel(0)),
+				}
+				// The rest of the attributes are lists of strings.
+				listAttrs := make([]string, resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice-1)
+				for i := range listAttrs {
+					listAttrs[i] = maxDNSLabel(i + 1)
+				}
+				attributes[maxResourceQualifiedName(1)] = resourceapi.DeviceAttribute{
+					ListValue: &resourceapi.DeviceAttributeListType{
+						StringValues: listAttrs,
+					},
+				}
+				return attributes
+			}(),
+			NodeName: ptr.To(maxSubDomain(0)),
+		})
+	}
+	slice.Spec.Devices = devices
 	return slice
 }
 
