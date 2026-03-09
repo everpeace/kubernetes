@@ -619,7 +619,7 @@ type DeviceAttribute struct {
 	ListValue *DeviceAttributeListType
 }
 
-// DeviceAttributeListType is a wrapper type to allow defining a list of attribute values in DeviceAttribute.
+// DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.
 type DeviceAttributeListType struct {
 	// The Go field names below have a Value suffix to avoid a conflict between the
 	// field "String" and the corresponding method. That method is required.

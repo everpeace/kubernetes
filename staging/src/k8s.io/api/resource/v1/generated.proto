@@ -577,7 +577,7 @@ message DeviceAttribute {
   optional DeviceAttributeListType list = 6;
 }
 
-// DeviceAttributeListType is a wrapper type to allow defining a list of attribute values in DeviceAttribute.
+// DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.
 message DeviceAttributeListType {
   // IntValue is a list of numbers.
   //

@@ -166,7 +166,7 @@ func (DeviceAttribute) SwaggerDoc() map[string]string {
 }
 
 var map_DeviceAttributeListType = map[string]string{
-	"":         "DeviceAttributeListType is a wrapper type to allow defining a list of attribute values in DeviceAttribute.",
+	"":         "DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.",
 	"ints":     "IntValue is a list of numbers.",
 	"bools":    "BoolValue is a list of true/false values.",
 	"strings":  "StringValue is a list of strings. Each string must not be longer than 64 characters.",

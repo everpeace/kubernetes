@@ -21,7 +21,7 @@ package v1beta1
 // DeviceAttributeListTypeApplyConfiguration represents a declarative configuration of the DeviceAttributeListType type for use
 // with apply.
 //
-// DeviceAttributeListType is a wrapper type to allow defining a list of attribute values in DeviceAttribute.
+// DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.
 type DeviceAttributeListTypeApplyConfiguration struct {
 	// IntValue is a list of numbers.
 	IntValue []int64 `json:"ints,omitempty"`

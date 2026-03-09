@@ -47347,7 +47347,7 @@ func schema_k8sio_api_resource_v1_DeviceAttributeListType(ref common.ReferenceCa
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "DeviceAttributeListType is a wrapper type to allow defining a list of attribute values in DeviceAttribute.",
+				Description: "DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"ints": {
@@ -49956,7 +49956,7 @@ func schema_k8sio_api_resource_v1beta1_DeviceAttributeListType(ref common.Refere
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "DeviceAttributeListType is a wrapper type to allow defining a list of attribute values in DeviceAttribute.",
+				Description: "DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"ints": {
@@ -52229,7 +52229,7 @@ func schema_k8sio_api_resource_v1beta2_DeviceAttributeListType(ref common.Refere
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "DeviceAttributeListType is a wrapper type to allow defining a list of attribute values in DeviceAttribute.",
+				Description: "DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"ints": {
