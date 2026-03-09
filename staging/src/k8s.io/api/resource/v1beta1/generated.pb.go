@@ -953,28 +953,28 @@ func (m *DeviceAttributeListType) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	_ = i
 	var l int
 	_ = l
-	if len(m.VersionValue) > 0 {
-		for iNdEx := len(m.VersionValue) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.VersionValue[iNdEx])
-			copy(dAtA[i:], m.VersionValue[iNdEx])
-			i = encodeVarintGenerated(dAtA, i, uint64(len(m.VersionValue[iNdEx])))
+	if len(m.VersionValues) > 0 {
+		for iNdEx := len(m.VersionValues) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.VersionValues[iNdEx])
+			copy(dAtA[i:], m.VersionValues[iNdEx])
+			i = encodeVarintGenerated(dAtA, i, uint64(len(m.VersionValues[iNdEx])))
 			i--
 			dAtA[i] = 0x2a
 		}
 	}
-	if len(m.StringValue) > 0 {
-		for iNdEx := len(m.StringValue) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.StringValue[iNdEx])
-			copy(dAtA[i:], m.StringValue[iNdEx])
-			i = encodeVarintGenerated(dAtA, i, uint64(len(m.StringValue[iNdEx])))
+	if len(m.StringValues) > 0 {
+		for iNdEx := len(m.StringValues) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.StringValues[iNdEx])
+			copy(dAtA[i:], m.StringValues[iNdEx])
+			i = encodeVarintGenerated(dAtA, i, uint64(len(m.StringValues[iNdEx])))
 			i--
 			dAtA[i] = 0x22
 		}
 	}
-	if len(m.BoolValue) > 0 {
-		for iNdEx := len(m.BoolValue) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.BoolValues) > 0 {
+		for iNdEx := len(m.BoolValues) - 1; iNdEx >= 0; iNdEx-- {
 			i--
-			if m.BoolValue[iNdEx] {
+			if m.BoolValues[iNdEx] {
 				dAtA[i] = 1
 			} else {
 				dAtA[i] = 0
@@ -983,9 +983,9 @@ func (m *DeviceAttributeListType) MarshalToSizedBuffer(dAtA []byte) (int, error)
 			dAtA[i] = 0x18
 		}
 	}
-	if len(m.IntValue) > 0 {
-		for iNdEx := len(m.IntValue) - 1; iNdEx >= 0; iNdEx-- {
-			i = encodeVarintGenerated(dAtA, i, uint64(m.IntValue[iNdEx]))
+	if len(m.IntValues) > 0 {
+		for iNdEx := len(m.IntValues) - 1; iNdEx >= 0; iNdEx-- {
+			i = encodeVarintGenerated(dAtA, i, uint64(m.IntValues[iNdEx]))
 			i--
 			dAtA[i] = 0x10
 		}
@@ -2904,22 +2904,22 @@ func (m *DeviceAttributeListType) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.IntValue) > 0 {
-		for _, e := range m.IntValue {
+	if len(m.IntValues) > 0 {
+		for _, e := range m.IntValues {
 			n += 1 + sovGenerated(uint64(e))
 		}
 	}
-	if len(m.BoolValue) > 0 {
-		n += 2 * len(m.BoolValue)
+	if len(m.BoolValues) > 0 {
+		n += 2 * len(m.BoolValues)
 	}
-	if len(m.StringValue) > 0 {
-		for _, s := range m.StringValue {
+	if len(m.StringValues) > 0 {
+		for _, s := range m.StringValues {
 			l = len(s)
 			n += 1 + l + sovGenerated(uint64(l))
 		}
 	}
-	if len(m.VersionValue) > 0 {
-		for _, s := range m.VersionValue {
+	if len(m.VersionValues) > 0 {
+		for _, s := range m.VersionValues {
 			l = len(s)
 			n += 1 + l + sovGenerated(uint64(l))
 		}
@@ -3764,10 +3764,10 @@ func (this *DeviceAttributeListType) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&DeviceAttributeListType{`,
-		`IntValue:` + fmt.Sprintf("%v", this.IntValue) + `,`,
-		`BoolValue:` + fmt.Sprintf("%v", this.BoolValue) + `,`,
-		`StringValue:` + fmt.Sprintf("%v", this.StringValue) + `,`,
-		`VersionValue:` + fmt.Sprintf("%v", this.VersionValue) + `,`,
+		`IntValues:` + fmt.Sprintf("%v", this.IntValues) + `,`,
+		`BoolValues:` + fmt.Sprintf("%v", this.BoolValues) + `,`,
+		`StringValues:` + fmt.Sprintf("%v", this.StringValues) + `,`,
+		`VersionValues:` + fmt.Sprintf("%v", this.VersionValues) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -6751,7 +6751,7 @@ func (m *DeviceAttributeListType) Unmarshal(dAtA []byte) error {
 						break
 					}
 				}
-				m.IntValue = append(m.IntValue, v)
+				m.IntValues = append(m.IntValues, v)
 			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
@@ -6786,8 +6786,8 @@ func (m *DeviceAttributeListType) Unmarshal(dAtA []byte) error {
 					}
 				}
 				elementCount = count
-				if elementCount != 0 && len(m.IntValue) == 0 {
-					m.IntValue = make([]int64, 0, elementCount)
+				if elementCount != 0 && len(m.IntValues) == 0 {
+					m.IntValues = make([]int64, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v int64
@@ -6805,10 +6805,10 @@ func (m *DeviceAttributeListType) Unmarshal(dAtA []byte) error {
 							break
 						}
 					}
-					m.IntValue = append(m.IntValue, v)
+					m.IntValues = append(m.IntValues, v)
 				}
 			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field IntValue", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field IntValues", wireType)
 			}
 		case 3:
 			if wireType == 0 {
@@ -6827,7 +6827,7 @@ func (m *DeviceAttributeListType) Unmarshal(dAtA []byte) error {
 						break
 					}
 				}
-				m.BoolValue = append(m.BoolValue, bool(v != 0))
+				m.BoolValues = append(m.BoolValues, bool(v != 0))
 			} else if wireType == 2 {
 				var packedLen int
 				for shift := uint(0); ; shift += 7 {
@@ -6856,8 +6856,8 @@ func (m *DeviceAttributeListType) Unmarshal(dAtA []byte) error {
 				}
 				var elementCount int
 				elementCount = packedLen
-				if elementCount != 0 && len(m.BoolValue) == 0 {
-					m.BoolValue = make([]bool, 0, elementCount)
+				if elementCount != 0 && len(m.BoolValues) == 0 {
+					m.BoolValues = make([]bool, 0, elementCount)
 				}
 				for iNdEx < postIndex {
 					var v int
@@ -6875,14 +6875,14 @@ func (m *DeviceAttributeListType) Unmarshal(dAtA []byte) error {
 							break
 						}
 					}
-					m.BoolValue = append(m.BoolValue, bool(v != 0))
+					m.BoolValues = append(m.BoolValues, bool(v != 0))
 				}
 			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field BoolValue", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BoolValues", wireType)
 			}
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field StringValue", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field StringValues", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -6910,11 +6910,11 @@ func (m *DeviceAttributeListType) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.StringValue = append(m.StringValue, string(dAtA[iNdEx:postIndex]))
+			m.StringValues = append(m.StringValues, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field VersionValue", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field VersionValues", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -6942,7 +6942,7 @@ func (m *DeviceAttributeListType) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.VersionValue = append(m.VersionValue, string(dAtA[iNdEx:postIndex]))
+			m.VersionValues = append(m.VersionValues, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

@@ -112,16 +112,16 @@ func TestDeclarativeValidate(t *testing.T) {
 					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/version", resource.DeviceAttribute{VersionValue: ptr.To("1.2.3")})),
 				},
 				"valid: device attribute list of ints": {
-					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_ints", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{IntValue: []int64{1, 2, 3}}})),
+					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_ints", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{IntValues: []int64{1, 2, 3}}})),
 				},
 				"valid: device attribute list of bools": {
-					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_bools", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{BoolValue: []bool{true, false, true}}})),
+					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_bools", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{BoolValues: []bool{true, false, true}}})),
 				},
 				"valid: device attribute list of strings": {
-					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_strings", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{StringValue: []string{"a", "b", "c"}}})),
+					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_strings", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{StringValues: []string{"a", "b", "c"}}})),
 				},
 				"valid: device attribute list of versions": {
-					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_versions", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{VersionValue: []string{"1.2.3", "2.3.4"}}})),
+					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_versions", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{VersionValues: []string{"1.2.3", "2.3.4"}}})),
 				},
 				"invalid: device attribute with multiple values": {
 					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/multiple", resource.DeviceAttribute{IntValue: ptr.To[int64](123), BoolValue: ptr.To(true)})),
@@ -168,7 +168,7 @@ func TestDeclarativeValidate(t *testing.T) {
 				// 	},
 				// },
 				"invalid: device attribute list of too long strings": {
-					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_strings", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{StringValue: []string{strings.Repeat("a", resource.DeviceAttributeMaxValueLength+1)}}})),
+					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_strings", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{StringValues: []string{strings.Repeat("a", resource.DeviceAttributeMaxValueLength+1)}}})),
 					expectedErrs: field.ErrorList{
 						field.TooLong(
 							field.NewPath("spec", "devices").Index(0).Child("attributes").Key("test.io/list_of_strings").Child("list").Child("strings").Index(0), resource.DeviceAttributeMaxValueLength+1, resource.DeviceAttributeMaxValueLength,
@@ -176,7 +176,7 @@ func TestDeclarativeValidate(t *testing.T) {
 					},
 				},
 				"invalid: device attribute list of too long versions": {
-					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_versions", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{VersionValue: []string{strings.Repeat("a", resource.DeviceAttributeMaxValueLength+1)}}})),
+					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_versions", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{VersionValues: []string{strings.Repeat("a", resource.DeviceAttributeMaxValueLength+1)}}})),
 					expectedErrs: field.ErrorList{
 						field.TooLong(
 							field.NewPath("spec", "devices").Index(0).Child("attributes").Key("test.io/list_of_versions").Child("list").Child("versions").Index(0), resource.DeviceAttributeMaxValueLength+1, resource.DeviceAttributeMaxValueLength,
@@ -187,7 +187,7 @@ func TestDeclarativeValidate(t *testing.T) {
 					},
 				},
 				"invalid: device attribute list with multiple value types": {
-					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_multiple", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{IntValue: []int64{1, 2}, BoolValue: []bool{true, false}}})),
+					input: mkResourceSliceWithDevices(tweakDeviceAttribute("test.io/list_of_multiple", resource.DeviceAttribute{ListValue: &resource.DeviceAttributeListType{IntValues: []int64{1, 2}, BoolValues: []bool{true, false}}})),
 					expectedErrs: field.ErrorList{
 						field.Invalid(
 							field.NewPath("spec", "devices").Index(0).Child("attributes").Key("test.io/list_of_multiple").Child("list"), "", "",

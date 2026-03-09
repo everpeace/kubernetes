@@ -895,7 +895,7 @@ func numEntriesDeviceAttribute(device resource.Device) int {
 		}
 		// These fields are actually mutually exclusive, but we count the total number of entries across all of them.
 		// If setting multiple fields in the list value, the validation will fail later and report that exactly one value must be specified.
-		numEntries += len(attr.ListValue.BoolValue) + len(attr.ListValue.IntValue) + len(attr.ListValue.StringValue) + len(attr.ListValue.VersionValue)
+		numEntries += len(attr.ListValue.BoolValues) + len(attr.ListValue.IntValues) + len(attr.ListValue.StringValues) + len(attr.ListValue.VersionValues)
 	}
 	return numEntries
 }
@@ -1016,21 +1016,21 @@ func validateDeviceAttributeListValue(deviceAttributeListType *resource.DeviceAt
 	var allErrs field.ErrorList
 	numFields := 0
 
-	if deviceAttributeListType.BoolValue != nil {
+	if deviceAttributeListType.BoolValues != nil {
 		numFields++
 	}
-	if deviceAttributeListType.IntValue != nil {
+	if deviceAttributeListType.IntValues != nil {
 		numFields++
 	}
-	if deviceAttributeListType.StringValue != nil {
+	if deviceAttributeListType.StringValues != nil {
 		numFields++
-		for i, item := range deviceAttributeListType.StringValue {
+		for i, item := range deviceAttributeListType.StringValues {
 			allErrs = append(allErrs, validateDeviceAttributeStringValueByDeclarative(&item, fldPath.Child("strings").Index(i))...)
 		}
 	}
-	if deviceAttributeListType.VersionValue != nil {
+	if deviceAttributeListType.VersionValues != nil {
 		numFields++
-		for i, item := range deviceAttributeListType.VersionValue {
+		for i, item := range deviceAttributeListType.VersionValues {
 			allErrs = append(allErrs, validateDeviceAttributeVersionValueByDeclarative(&item, fldPath.Child("versions").Index(i))...)
 		}
 	}

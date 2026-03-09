@@ -827,17 +827,17 @@ func attributeAsSet(attribute *resourceapi.DeviceAttribute) *deviceAttributeList
 	// Check ListValue first
 	if attribute.ListValue != nil {
 		switch {
-		case len(attribute.ListValue.IntValue) > 0:
-			result.intValue = sets.New(attribute.ListValue.IntValue...)
+		case len(attribute.ListValue.IntValues) > 0:
+			result.intValue = sets.New(attribute.ListValue.IntValues...)
 			return result
-		case len(attribute.ListValue.BoolValue) > 0:
-			result.boolValue = sets.New(attribute.ListValue.BoolValue...)
+		case len(attribute.ListValue.BoolValues) > 0:
+			result.boolValue = sets.New(attribute.ListValue.BoolValues...)
 			return result
-		case len(attribute.ListValue.StringValue) > 0:
-			result.stringValue = sets.New(attribute.ListValue.StringValue...)
+		case len(attribute.ListValue.StringValues) > 0:
+			result.stringValue = sets.New(attribute.ListValue.StringValues...)
 			return result
-		case len(attribute.ListValue.VersionValue) > 0:
-			result.versionValue = sets.New(attribute.ListValue.VersionValue...)
+		case len(attribute.ListValue.VersionValues) > 0:
+			result.versionValue = sets.New(attribute.ListValue.VersionValues...)
 			return result
 		}
 	}

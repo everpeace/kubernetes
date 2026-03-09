@@ -5732,12 +5732,12 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2", "value3"},
+						StringValues: []string{"value1", "value2", "value3"},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value2", "value3", "value4"},
+						StringValues: []string{"value2", "value3", "value4"},
 					}},
 				}),
 			)),
@@ -5762,17 +5762,17 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2"},
+						StringValues: []string{"value1", "value2"},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value2", "value3"},
+						StringValues: []string{"value2", "value3"},
 					}},
 				}),
 				device(device3, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value3", "value1"},
+						StringValues: []string{"value3", "value1"},
 					}},
 				}),
 			)),
@@ -5794,12 +5794,12 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2"},
+						StringValues: []string{"value1", "value2"},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value3", "value4"},
+						StringValues: []string{"value3", "value4"},
 					}},
 				}),
 			)),
@@ -5823,7 +5823,7 @@ func TestAllocator(t *testing.T,
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2"},
+						StringValues: []string{"value1", "value2"},
 					}},
 				}),
 			)),
@@ -5851,12 +5851,12 @@ func TestAllocator(t *testing.T,
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2"},
+						StringValues: []string{"value1", "value2"},
 					}},
 				}),
 				device(device3, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value2", "value3"},
+						StringValues: []string{"value2", "value3"},
 					}},
 				}),
 			)),
@@ -5880,7 +5880,7 @@ func TestAllocator(t *testing.T,
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value2", "value3"},
+						StringValues: []string{"value2", "value3"},
 					}},
 				}),
 			)),
@@ -5901,12 +5901,12 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"numa": {ListValue: &resourceapi.DeviceAttributeListType{
-						IntValue: []int64{0, 1, 2},
+						IntValues: []int64{0, 1, 2},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"numa": {ListValue: &resourceapi.DeviceAttributeListType{
-						IntValue: []int64{1, 2, 3},
+						IntValues: []int64{1, 2, 3},
 					}},
 				}),
 			)),
@@ -5931,12 +5931,12 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"boolAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						BoolValue: []bool{true, false},
+						BoolValues: []bool{true, false},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"boolAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						BoolValue: []bool{true},
+						BoolValues: []bool{true},
 					}},
 				}),
 			)),
@@ -5961,12 +5961,12 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"driverVersion": {ListValue: &resourceapi.DeviceAttributeListType{
-						VersionValue: []string{"1.0.0", "1.1.0", "2.0.0"},
+						VersionValues: []string{"1.0.0", "1.1.0", "2.0.0"},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"driverVersion": {ListValue: &resourceapi.DeviceAttributeListType{
-						VersionValue: []string{"1.1.0", "2.0.0", "2.1.0"},
+						VersionValues: []string{"1.1.0", "2.0.0", "2.1.0"},
 					}},
 				}),
 			)),
@@ -6042,17 +6042,17 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2"},
+						StringValues: []string{"value1", "value2"},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value2", "value3"},
+						StringValues: []string{"value2", "value3"},
 					}},
 				}),
 				device(device3, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value3", "value4"},
+						StringValues: []string{"value3", "value4"},
 					}},
 				}),
 			)),
@@ -6078,12 +6078,12 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2", "value3"},
+						StringValues: []string{"value1", "value2", "value3"},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value2", "value4", "value5"},
+						StringValues: []string{"value2", "value4", "value5"},
 					}},
 				}),
 			)),
@@ -6108,12 +6108,12 @@ func TestAllocator(t *testing.T,
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2"},
+						StringValues: []string{"value1", "value2"},
 					}},
 				}),
 				device(device3, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value2", "value3"},
+						StringValues: []string{"value2", "value3"},
 					}},
 				}),
 			)),
@@ -6142,7 +6142,7 @@ func TestAllocator(t *testing.T,
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"stringAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						StringValue: []string{"value1", "value2"},
+						StringValues: []string{"value1", "value2"},
 					}},
 				}),
 			)),
@@ -6164,17 +6164,17 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"numa": {ListValue: &resourceapi.DeviceAttributeListType{
-						IntValue: []int64{0, 1},
+						IntValues: []int64{0, 1},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"numa": {ListValue: &resourceapi.DeviceAttributeListType{
-						IntValue: []int64{1, 2},
+						IntValues: []int64{1, 2},
 					}},
 				}),
 				device(device3, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"numa": {ListValue: &resourceapi.DeviceAttributeListType{
-						IntValue: []int64{2, 3},
+						IntValues: []int64{2, 3},
 					}},
 				}),
 			)),
@@ -6200,17 +6200,17 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"boolAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						BoolValue: []bool{true},
+						BoolValues: []bool{true},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"boolAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						BoolValue: []bool{true, false},
+						BoolValues: []bool{true, false},
 					}},
 				}),
 				device(device3, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"boolAttribute": {ListValue: &resourceapi.DeviceAttributeListType{
-						BoolValue: []bool{false},
+						BoolValues: []bool{false},
 					}},
 				}),
 			)),
@@ -6236,17 +6236,17 @@ func TestAllocator(t *testing.T,
 			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
 				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"driverVersion": {ListValue: &resourceapi.DeviceAttributeListType{
-						VersionValue: []string{"1.0.0", "1.1.0"},
+						VersionValues: []string{"1.0.0", "1.1.0"},
 					}},
 				}),
 				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"driverVersion": {ListValue: &resourceapi.DeviceAttributeListType{
-						VersionValue: []string{"1.1.0", "2.0.0"},
+						VersionValues: []string{"1.1.0", "2.0.0"},
 					}},
 				}),
 				device(device3, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					"driverVersion": {ListValue: &resourceapi.DeviceAttributeListType{
-						VersionValue: []string{"2.0.0", "2.1.0"},
+						VersionValues: []string{"2.0.0", "2.1.0"},
 					}},
 				}),
 			)),

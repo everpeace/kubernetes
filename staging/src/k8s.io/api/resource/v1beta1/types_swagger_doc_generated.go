@@ -176,10 +176,10 @@ func (DeviceAttribute) SwaggerDoc() map[string]string {
 
 var map_DeviceAttributeListType = map[string]string{
 	"":         "DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.",
-	"ints":     "IntValue is a list of numbers.",
-	"bools":    "BoolValue is a list of true/false values.",
-	"strings":  "StringValue is a list of strings. Each string must not be longer than 64 characters.",
-	"versions": "VersionValue is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.",
+	"ints":     "IntValues is a list of numbers.",
+	"bools":    "BoolValues is a list of true/false values.",
+	"strings":  "StringValues is a list of strings. Each string must not be longer than 64 characters.",
+	"versions": "VersionValues is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.",
 }
 
 func (DeviceAttributeListType) SwaggerDoc() map[string]string {

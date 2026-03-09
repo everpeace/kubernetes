@@ -192,7 +192,7 @@ var sliceWithListTypeAttributes = func() *resource.ResourceSlice {
 	obj.Spec.Devices[0].Attributes = map[resource.QualifiedName]resource.DeviceAttribute{
 		resource.QualifiedName("list_attribute"): {
 			ListValue: &resource.DeviceAttributeListType{
-				StringValue: []string{"value1", "value2"},
+				StringValues: []string{"value1", "value2"},
 			},
 		},
 	}

@@ -579,7 +579,7 @@ message DeviceAttribute {
 
 // DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.
 message DeviceAttributeListType {
-  // IntValue is a list of numbers.
+  // IntValues is a list of numbers.
   //
   // +optional
   // +listType=atomic
@@ -587,7 +587,7 @@ message DeviceAttributeListType {
   // +k8s:alpha(since: "1.36")=+k8s:unionMember
   repeated int64 ints = 2;
 
-  // BoolValue is a list of true/false values.
+  // BoolValues is a list of true/false values.
   //
   // +optional
   // +listType=atomic
@@ -595,7 +595,7 @@ message DeviceAttributeListType {
   // +k8s:alpha(since: "1.36")=+k8s:unionMember
   repeated bool bools = 3;
 
-  // StringValue is a list of strings.
+  // StringValues is a list of strings.
   // Each string must not be longer than 64 characters.
   //
   // +optional
@@ -605,7 +605,7 @@ message DeviceAttributeListType {
   // +k8s:alpha(since: "1.36")=+k8s:eachVal=+k8s:maxLength=64
   repeated string strings = 4;
 
-  // VersionValue is a list of semantic versions according to semver.org spec 2.0.0.
+  // VersionValues is a list of semantic versions according to semver.org spec 2.0.0.
   // Each version string must not be longer than 64 characters.
   //
   // +optional

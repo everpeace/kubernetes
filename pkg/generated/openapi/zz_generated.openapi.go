@@ -47357,7 +47357,7 @@ func schema_k8sio_api_resource_v1_DeviceAttributeListType(ref common.ReferenceCa
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "IntValue is a list of numbers.",
+							Description: "IntValues is a list of numbers.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -47377,7 +47377,7 @@ func schema_k8sio_api_resource_v1_DeviceAttributeListType(ref common.ReferenceCa
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "BoolValue is a list of true/false values.",
+							Description: "BoolValues is a list of true/false values.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -47397,7 +47397,7 @@ func schema_k8sio_api_resource_v1_DeviceAttributeListType(ref common.ReferenceCa
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "StringValue is a list of strings. Each string must not be longer than 64 characters.",
+							Description: "StringValues is a list of strings. Each string must not be longer than 64 characters.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -47417,7 +47417,7 @@ func schema_k8sio_api_resource_v1_DeviceAttributeListType(ref common.ReferenceCa
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "VersionValue is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.",
+							Description: "VersionValues is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -49966,7 +49966,7 @@ func schema_k8sio_api_resource_v1beta1_DeviceAttributeListType(ref common.Refere
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "IntValue is a list of numbers.",
+							Description: "IntValues is a list of numbers.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -49986,7 +49986,7 @@ func schema_k8sio_api_resource_v1beta1_DeviceAttributeListType(ref common.Refere
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "BoolValue is a list of true/false values.",
+							Description: "BoolValues is a list of true/false values.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -50006,7 +50006,7 @@ func schema_k8sio_api_resource_v1beta1_DeviceAttributeListType(ref common.Refere
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "StringValue is a list of strings. Each string must not be longer than 64 characters.",
+							Description: "StringValues is a list of strings. Each string must not be longer than 64 characters.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -50026,7 +50026,7 @@ func schema_k8sio_api_resource_v1beta1_DeviceAttributeListType(ref common.Refere
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "VersionValue is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.",
+							Description: "VersionValues is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -52239,7 +52239,7 @@ func schema_k8sio_api_resource_v1beta2_DeviceAttributeListType(ref common.Refere
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "IntValue is a list of numbers.",
+							Description: "IntValues is a list of numbers.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -52259,7 +52259,7 @@ func schema_k8sio_api_resource_v1beta2_DeviceAttributeListType(ref common.Refere
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "BoolValue is a list of true/false values.",
+							Description: "BoolValues is a list of true/false values.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -52279,7 +52279,7 @@ func schema_k8sio_api_resource_v1beta2_DeviceAttributeListType(ref common.Refere
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "StringValue is a list of strings. Each string must not be longer than 64 characters.",
+							Description: "StringValues is a list of strings. Each string must not be longer than 64 characters.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -52299,7 +52299,7 @@ func schema_k8sio_api_resource_v1beta2_DeviceAttributeListType(ref common.Refere
 							},
 						},
 						SchemaProps: spec.SchemaProps{
-							Description: "VersionValue is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.",
+							Description: "VersionValues is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{

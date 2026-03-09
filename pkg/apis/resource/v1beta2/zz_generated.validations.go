@@ -617,25 +617,25 @@ func Validate_DeviceAttributeListType(ctx context.Context, op operation.Operatio
 		if obj == nil {
 			return false
 		}
-		return obj.IntValue != nil
+		return obj.IntValues != nil
 	}, func(obj *resourcev1beta2.DeviceAttributeListType) bool {
 		if obj == nil {
 			return false
 		}
-		return obj.BoolValue != nil
+		return obj.BoolValues != nil
 	}, func(obj *resourcev1beta2.DeviceAttributeListType) bool {
 		if obj == nil {
 			return false
 		}
-		return obj.StringValue != nil
+		return obj.StringValues != nil
 	}, func(obj *resourcev1beta2.DeviceAttributeListType) bool {
 		if obj == nil {
 			return false
 		}
-		return obj.VersionValue != nil
+		return obj.VersionValues != nil
 	}).MarkAlpha()...)
 
-	// field resourcev1beta2.DeviceAttributeListType.IntValue
+	// field resourcev1beta2.DeviceAttributeListType.IntValues
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj []int64, oldValueCorrelated bool) (errs field.ErrorList) {
 			// don't revalidate unchanged data
@@ -651,9 +651,9 @@ func Validate_DeviceAttributeListType(ctx context.Context, op operation.Operatio
 				return // do not proceed
 			}
 			return
-		}(fldPath.Child("ints"), obj.IntValue, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []int64 { return oldObj.IntValue }), oldObj != nil)...)
+		}(fldPath.Child("ints"), obj.IntValues, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []int64 { return oldObj.IntValues }), oldObj != nil)...)
 
-	// field resourcev1beta2.DeviceAttributeListType.BoolValue
+	// field resourcev1beta2.DeviceAttributeListType.BoolValues
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj []bool, oldValueCorrelated bool) (errs field.ErrorList) {
 			// don't revalidate unchanged data
@@ -669,9 +669,9 @@ func Validate_DeviceAttributeListType(ctx context.Context, op operation.Operatio
 				return // do not proceed
 			}
 			return
-		}(fldPath.Child("bools"), obj.BoolValue, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []bool { return oldObj.BoolValue }), oldObj != nil)...)
+		}(fldPath.Child("bools"), obj.BoolValues, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []bool { return oldObj.BoolValues }), oldObj != nil)...)
 
-	// field resourcev1beta2.DeviceAttributeListType.StringValue
+	// field resourcev1beta2.DeviceAttributeListType.StringValues
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj []string, oldValueCorrelated bool) (errs field.ErrorList) {
 			// don't revalidate unchanged data
@@ -690,9 +690,9 @@ func Validate_DeviceAttributeListType(ctx context.Context, op operation.Operatio
 				return validate.MaxLength(ctx, op, fldPath, obj, oldObj, 64)
 			}).MarkAlpha()...)
 			return
-		}(fldPath.Child("strings"), obj.StringValue, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []string { return oldObj.StringValue }), oldObj != nil)...)
+		}(fldPath.Child("strings"), obj.StringValues, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []string { return oldObj.StringValues }), oldObj != nil)...)
 
-	// field resourcev1beta2.DeviceAttributeListType.VersionValue
+	// field resourcev1beta2.DeviceAttributeListType.VersionValues
 	errs = append(errs,
 		func(fldPath *field.Path, obj, oldObj []string, oldValueCorrelated bool) (errs field.ErrorList) {
 			// don't revalidate unchanged data
@@ -711,7 +711,7 @@ func Validate_DeviceAttributeListType(ctx context.Context, op operation.Operatio
 				return validate.MaxLength(ctx, op, fldPath, obj, oldObj, 64)
 			}).MarkAlpha()...)
 			return
-		}(fldPath.Child("versions"), obj.VersionValue, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []string { return oldObj.VersionValue }), oldObj != nil)...)
+		}(fldPath.Child("versions"), obj.VersionValues, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []string { return oldObj.VersionValues }), oldObj != nil)...)
 
 	return errs
 }

@@ -119,13 +119,13 @@ func TestValidateResourceSlice(t *testing.T) {
 
 	badEmptyListValue := &resourceapi.DeviceAttributeListType{}
 	badMultipleListValue := &resourceapi.DeviceAttributeListType{
-		IntValue: []int64{1}, BoolValue: []bool{true},
+		IntValues: []int64{1}, BoolValues: []bool{true},
 	}
 	badListStringValueTooLong := &resourceapi.DeviceAttributeListType{
-		StringValue: []string{strings.Repeat("x", resourceapi.DeviceAttributeMaxValueLength+1)},
+		StringValues: []string{strings.Repeat("x", resourceapi.DeviceAttributeMaxValueLength+1)},
 	}
 	badListVersionValueTooLong := &resourceapi.DeviceAttributeListType{
-		VersionValue: []string{strings.Repeat("x", resourceapi.DeviceAttributeMaxValueLength+1)},
+		VersionValues: []string{strings.Repeat("x", resourceapi.DeviceAttributeMaxValueLength+1)},
 	}
 
 	scenarios := map[string]struct {
@@ -431,22 +431,22 @@ func TestValidateResourceSlice(t *testing.T) {
 				slice := testResourceSlice(goodName, goodName, goodName, 4)
 				slice.Spec.Devices[0].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					resourceapi.QualifiedName(goodName): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
-						BoolValue: []bool{true},
+						BoolValues: []bool{true},
 					})},
 				}
 				slice.Spec.Devices[1].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					resourceapi.QualifiedName(goodName): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
-						IntValue: []int64{1},
+						IntValues: []int64{1},
 					})},
 				}
 				slice.Spec.Devices[2].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					resourceapi.QualifiedName(goodName): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
-						StringValue: []string{"x"},
+						StringValues: []string{"x"},
 					})},
 				}
 				slice.Spec.Devices[3].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					resourceapi.QualifiedName(goodName): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
-						VersionValue: []string{"1.2.3"},
+						VersionValues: []string{"1.2.3"},
 					})},
 				}
 				return slice
@@ -459,10 +459,10 @@ func TestValidateResourceSlice(t *testing.T) {
 				// field.TooMany(field.NewPath("spec", "devices").Index(2).Child("attributes").Key(goodName).Child("list", "bools"), len(badTooLongListBoolValue.BoolValue), resourceapi.DeviceAttributeMaxListLength).WithOrigin("maxItems").MarkCoveredByDeclarative(),
 				// field.TooMany(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "ints"), len(badTooLongListIntValue.IntValue), resourceapi.DeviceAttributeMaxListLength).WithOrigin("maxItems").MarkCoveredByDeclarative(),
 				// field.TooMany(field.NewPath("spec", "devices").Index(4).Child("attributes").Key(goodName).Child("list", "strings"), len(badTooLongListStringValue.StringValue), resourceapi.DeviceAttributeMaxListLength).WithOrigin("maxItems").MarkCoveredByDeclarative(),
-				field.TooLong(field.NewPath("spec", "devices").Index(2).Child("attributes").Key(goodName).Child("list", "strings").Index(0), badListStringValueTooLong.StringValue[0], resourceapi.DeviceAttributeMaxValueLength).WithOrigin("maxLength").MarkCoveredByDeclarative(),
+				field.TooLong(field.NewPath("spec", "devices").Index(2).Child("attributes").Key(goodName).Child("list", "strings").Index(0), badListStringValueTooLong.StringValues[0], resourceapi.DeviceAttributeMaxValueLength).WithOrigin("maxLength").MarkCoveredByDeclarative(),
 				// field.TooMany(field.NewPath("spec", "devices").Index(6).Child("attributes").Key(goodName).Child("list", "versions"), len(badTooLongListVersionValue.VersionValue), resourceapi.DeviceAttributeMaxListLength).WithOrigin("maxItems").MarkCoveredByDeclarative(),
-				field.Invalid(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "versions").Index(0), badListVersionValueTooLong.VersionValue[0], "must be a string compatible with semver.org spec 2.0.0"),
-				field.TooLong(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "versions").Index(0), badListVersionValueTooLong.VersionValue[0], resourceapi.DeviceAttributeMaxValueLength).WithOrigin("maxLength").MarkCoveredByDeclarative(),
+				field.Invalid(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "versions").Index(0), badListVersionValueTooLong.VersionValues[0], "must be a string compatible with semver.org spec 2.0.0"),
+				field.TooLong(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "versions").Index(0), badListVersionValueTooLong.VersionValues[0], resourceapi.DeviceAttributeMaxValueLength).WithOrigin("maxLength").MarkCoveredByDeclarative(),
 			},
 
 			slice: func() *resourceapi.ResourceSlice {
@@ -593,7 +593,7 @@ func TestValidateResourceSlice(t *testing.T) {
 					for i := 0; i < resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice; i += 2 {
 						attributes[resourceapi.QualifiedName(fmt.Sprintf("list_attr_%d", i))] = resourceapi.DeviceAttribute{
 							ListValue: ptr.To(resourceapi.DeviceAttributeListType{
-								StringValue: []string{"x", "y"},
+								StringValues: []string{"x", "y"},
 							}),
 						}
 					}
@@ -608,7 +608,7 @@ func TestValidateResourceSlice(t *testing.T) {
 				// error: Too large together by one list attribute
 				slice.Spec.Devices[1].Attributes = maxScalarAttributes()
 				slice.Spec.Devices[1].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{ListValue: ptr.To(resourceapi.DeviceAttributeListType{
-					StringValue: []string{"x"},
+					StringValues: []string{"x"},
 				})}
 				slice.Spec.Devices[1].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
 
@@ -623,7 +623,7 @@ func TestValidateResourceSlice(t *testing.T) {
 				// error: Too large together by one list attribute
 				slice.Spec.Devices[3].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					resourceapi.QualifiedName("extra_attr"): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
-						StringValue: []string{"x"},
+						StringValues: []string{"x"},
 					})},
 				}
 				slice.Spec.Devices[3].Capacity = slice.Spec.Devices[2].Capacity

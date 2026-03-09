@@ -23,16 +23,16 @@ package v1
 //
 // DeviceAttributeListType contains exactly one non-empty list of attribute values for use as a DeviceAttribute.
 type DeviceAttributeListTypeApplyConfiguration struct {
-	// IntValue is a list of numbers.
-	IntValue []int64 `json:"ints,omitempty"`
-	// BoolValue is a list of true/false values.
-	BoolValue []bool `json:"bools,omitempty"`
-	// StringValue is a list of strings.
+	// IntValues is a list of numbers.
+	IntValues []int64 `json:"ints,omitempty"`
+	// BoolValues is a list of true/false values.
+	BoolValues []bool `json:"bools,omitempty"`
+	// StringValues is a list of strings.
 	// Each string must not be longer than 64 characters.
-	StringValue []string `json:"strings,omitempty"`
-	// VersionValue is a list of semantic versions according to semver.org spec 2.0.0.
+	StringValues []string `json:"strings,omitempty"`
+	// VersionValues is a list of semantic versions according to semver.org spec 2.0.0.
 	// Each version string must not be longer than 64 characters.
-	VersionValue []string `json:"versions,omitempty"`
+	VersionValues []string `json:"versions,omitempty"`
 }
 
 // DeviceAttributeListTypeApplyConfiguration constructs a declarative configuration of the DeviceAttributeListType type for use with
@@ -41,42 +41,42 @@ func DeviceAttributeListType() *DeviceAttributeListTypeApplyConfiguration {
 	return &DeviceAttributeListTypeApplyConfiguration{}
 }
 
-// WithIntValue adds the given value to the IntValue field in the declarative configuration
+// WithIntValues adds the given value to the IntValues field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, values provided by each call will be appended to the IntValue field.
-func (b *DeviceAttributeListTypeApplyConfiguration) WithIntValue(values ...int64) *DeviceAttributeListTypeApplyConfiguration {
+// If called multiple times, values provided by each call will be appended to the IntValues field.
+func (b *DeviceAttributeListTypeApplyConfiguration) WithIntValues(values ...int64) *DeviceAttributeListTypeApplyConfiguration {
 	for i := range values {
-		b.IntValue = append(b.IntValue, values[i])
+		b.IntValues = append(b.IntValues, values[i])
 	}
 	return b
 }
 
-// WithBoolValue adds the given value to the BoolValue field in the declarative configuration
+// WithBoolValues adds the given value to the BoolValues field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, values provided by each call will be appended to the BoolValue field.
-func (b *DeviceAttributeListTypeApplyConfiguration) WithBoolValue(values ...bool) *DeviceAttributeListTypeApplyConfiguration {
+// If called multiple times, values provided by each call will be appended to the BoolValues field.
+func (b *DeviceAttributeListTypeApplyConfiguration) WithBoolValues(values ...bool) *DeviceAttributeListTypeApplyConfiguration {
 	for i := range values {
-		b.BoolValue = append(b.BoolValue, values[i])
+		b.BoolValues = append(b.BoolValues, values[i])
 	}
 	return b
 }
 
-// WithStringValue adds the given value to the StringValue field in the declarative configuration
+// WithStringValues adds the given value to the StringValues field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, values provided by each call will be appended to the StringValue field.
-func (b *DeviceAttributeListTypeApplyConfiguration) WithStringValue(values ...string) *DeviceAttributeListTypeApplyConfiguration {
+// If called multiple times, values provided by each call will be appended to the StringValues field.
+func (b *DeviceAttributeListTypeApplyConfiguration) WithStringValues(values ...string) *DeviceAttributeListTypeApplyConfiguration {
 	for i := range values {
-		b.StringValue = append(b.StringValue, values[i])
+		b.StringValues = append(b.StringValues, values[i])
 	}
 	return b
 }
 
-// WithVersionValue adds the given value to the VersionValue field in the declarative configuration
+// WithVersionValues adds the given value to the VersionValues field in the declarative configuration
 // and returns the receiver, so that objects can be build by chaining "With" function invocations.
-// If called multiple times, values provided by each call will be appended to the VersionValue field.
-func (b *DeviceAttributeListTypeApplyConfiguration) WithVersionValue(values ...string) *DeviceAttributeListTypeApplyConfiguration {
+// If called multiple times, values provided by each call will be appended to the VersionValues field.
+func (b *DeviceAttributeListTypeApplyConfiguration) WithVersionValues(values ...string) *DeviceAttributeListTypeApplyConfiguration {
 	for i := range values {
-		b.VersionValue = append(b.VersionValue, values[i])
+		b.VersionValues = append(b.VersionValues, values[i])
 	}
 	return b
 }

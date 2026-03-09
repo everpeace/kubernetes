@@ -625,31 +625,31 @@ type DeviceAttributeListType struct {
 	// field "String" and the corresponding method. That method is required.
 	// The Kubernetes API is defined without that suffix to keep it more natural.
 
-	// IntValue is a list of numbers.
+	// IntValues is a list of numbers.
 	//
 	// +optional
 	// +oneOf=ValueType
-	IntValue []int64
+	IntValues []int64
 
-	// BoolValue is a list of true/false values.
+	// BoolValues is a list of true/false values.
 	//
 	// +optional
 	// +oneOf=ValueType
-	BoolValue []bool
+	BoolValues []bool
 
-	// StringValue is a list of strings.
+	// StringValues is a list of strings.
 	// Each string must not be longer than 64 characters.
 	//
 	// +optional
 	// +oneOf=ValueType
-	StringValue []string
+	StringValues []string
 
-	// VersionValue is a list of semantic versions according to semver.org spec 2.0.0.
+	// VersionValues is a list of semantic versions according to semver.org spec 2.0.0.
 	// Each version string must not be longer than 64 characters.
 	//
 	// +optional
 	// +oneOf=ValueType
-	VersionValue []string
+	VersionValues []string
 }
 
 // DeviceAttributeMaxValueLength is the maximum length of a string or version attribute value.

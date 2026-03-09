@@ -256,15 +256,15 @@ func getAttributeValue(attr resourceapi.DeviceAttribute, features Features) (any
 		}
 		listValue := *attr.ListValue
 		switch {
-		case listValue.IntValue != nil:
-			return listValue.IntValue, nil
-		case listValue.BoolValue != nil:
-			return listValue.BoolValue, nil
-		case listValue.StringValue != nil:
-			return listValue.StringValue, nil
-		case listValue.VersionValue != nil:
-			semVers := make([]apiservercel.Semver, len(listValue.VersionValue))
-			for i, versionStr := range listValue.VersionValue {
+		case listValue.IntValues != nil:
+			return listValue.IntValues, nil
+		case listValue.BoolValues != nil:
+			return listValue.BoolValues, nil
+		case listValue.StringValues != nil:
+			return listValue.StringValues, nil
+		case listValue.VersionValues != nil:
+			semVers := make([]apiservercel.Semver, len(listValue.VersionValues))
+			for i, versionStr := range listValue.VersionValues {
 				v, err := semver.Parse(versionStr)
 				if err != nil {
 					return nil, fmt.Errorf("parse semantic version: %w", err)
