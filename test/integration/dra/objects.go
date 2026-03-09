@@ -124,7 +124,7 @@ func newSharedCountersResourceSlice() *resourceapi.ResourceSlice {
 
 func newResourceSliceWithAttributeLists() *resourceapi.ResourceSlice {
 	slice := commonResourceSlice()
-	slice.Spec.PerDeviceNodeSelection = ptr.To(true)
+	slice.Spec.PerDeviceNodeSelection = new(true)
 	var devices []resourceapi.Device
 	for i := range resourceapi.ResourceSliceMaxDevices {
 		devices = append(devices, resourceapi.Device{
@@ -134,7 +134,7 @@ func newResourceSliceWithAttributeLists() *resourceapi.ResourceSlice {
 				attributes := make(map[resourceapi.QualifiedName]resourceapi.DeviceAttribute)
 				// The first one is a string value
 				attributes[maxResourceQualifiedName(0)] = resourceapi.DeviceAttribute{
-					StringValue: ptr.To(maxDNSLabel(0)),
+					StringValue: new(maxDNSLabel(0)),
 				}
 				// The rest of the attributes are lists of strings.
 				listAttrs := make([]string, resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice-1)
@@ -148,7 +148,7 @@ func newResourceSliceWithAttributeLists() *resourceapi.ResourceSlice {
 				}
 				return attributes
 			}(),
-			NodeName: ptr.To(maxSubDomain(0)),
+			NodeName: new(maxSubDomain(0)),
 		})
 	}
 	slice.Spec.Devices = devices

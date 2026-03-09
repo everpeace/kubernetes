@@ -430,22 +430,22 @@ func TestValidateResourceSlice(t *testing.T) {
 			slice: func() *resourceapi.ResourceSlice {
 				slice := testResourceSlice(goodName, goodName, goodName, 4)
 				slice.Spec.Devices[0].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
-					resourceapi.QualifiedName(goodName): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
+					resourceapi.QualifiedName(goodName): {ListValue: new(resourceapi.DeviceAttributeListType{
 						BoolValues: []bool{true},
 					})},
 				}
 				slice.Spec.Devices[1].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
-					resourceapi.QualifiedName(goodName): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
+					resourceapi.QualifiedName(goodName): {ListValue: new(resourceapi.DeviceAttributeListType{
 						IntValues: []int64{1},
 					})},
 				}
 				slice.Spec.Devices[2].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
-					resourceapi.QualifiedName(goodName): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
+					resourceapi.QualifiedName(goodName): {ListValue: new(resourceapi.DeviceAttributeListType{
 						StringValues: []string{"x"},
 					})},
 				}
 				slice.Spec.Devices[3].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
-					resourceapi.QualifiedName(goodName): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
+					resourceapi.QualifiedName(goodName): {ListValue: new(resourceapi.DeviceAttributeListType{
 						VersionValues: []string{"1.2.3"},
 					})},
 				}
@@ -584,7 +584,7 @@ func TestValidateResourceSlice(t *testing.T) {
 				maxScalarAttributes := func() map[resourceapi.QualifiedName]resourceapi.DeviceAttribute {
 					attributes := map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{}
 					for i := range resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice {
-						attributes[resourceapi.QualifiedName(fmt.Sprintf("attr_%d", i))] = resourceapi.DeviceAttribute{StringValue: ptr.To("x")}
+						attributes[resourceapi.QualifiedName(fmt.Sprintf("attr_%d", i))] = resourceapi.DeviceAttribute{StringValue: new("x")}
 					}
 					return attributes
 				}
@@ -592,7 +592,7 @@ func TestValidateResourceSlice(t *testing.T) {
 					attributes := map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{}
 					for i := 0; i < resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice; i += 2 {
 						attributes[resourceapi.QualifiedName(fmt.Sprintf("list_attr_%d", i))] = resourceapi.DeviceAttribute{
-							ListValue: ptr.To(resourceapi.DeviceAttributeListType{
+							ListValue: new(resourceapi.DeviceAttributeListType{
 								StringValues: []string{"x", "y"},
 							}),
 						}
@@ -607,7 +607,7 @@ func TestValidateResourceSlice(t *testing.T) {
 				slice.Spec.Devices[0].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
 				// error: Too large together by one list attribute
 				slice.Spec.Devices[1].Attributes = maxScalarAttributes()
-				slice.Spec.Devices[1].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{ListValue: ptr.To(resourceapi.DeviceAttributeListType{
+				slice.Spec.Devices[1].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{ListValue: new(resourceapi.DeviceAttributeListType{
 					StringValues: []string{"x"},
 				})}
 				slice.Spec.Devices[1].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
@@ -622,7 +622,7 @@ func TestValidateResourceSlice(t *testing.T) {
 				}
 				// error: Too large together by one list attribute
 				slice.Spec.Devices[3].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
-					resourceapi.QualifiedName("extra_attr"): {ListValue: ptr.To(resourceapi.DeviceAttributeListType{
+					resourceapi.QualifiedName("extra_attr"): {ListValue: new(resourceapi.DeviceAttributeListType{
 						StringValues: []string{"x"},
 					})},
 				}
@@ -633,7 +633,7 @@ func TestValidateResourceSlice(t *testing.T) {
 				slice.Spec.Devices[4].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
 				// error: Too large together by one scalar attribute
 				slice.Spec.Devices[5].Attributes = maxListAttributes()
-				slice.Spec.Devices[5].Attributes["extra_attr"] = resourceapi.DeviceAttribute{StringValue: ptr.To("x")}
+				slice.Spec.Devices[5].Attributes["extra_attr"] = resourceapi.DeviceAttribute{StringValue: new(string)}
 				slice.Spec.Devices[5].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
 				// error: Too large together by one capacity
 				slice.Spec.Devices[6].Attributes = maxListAttributes()
