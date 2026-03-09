@@ -34,6 +34,8 @@ type DeviceAttributeApplyConfiguration struct {
 	VersionValue *string `json:"version,omitempty"`
 	// ListValue is a typed-list of attribute values. The list must be homogeneous,
 	// meaning that all entries must have the same type of value (int, bool, string or version).
+	//
+	// This is an alpha field and requires enabling the DRAListTypeAttributes feature gates.
 	ListValue *DeviceAttributeListTypeApplyConfiguration `json:"list,omitempty"`
 }
 

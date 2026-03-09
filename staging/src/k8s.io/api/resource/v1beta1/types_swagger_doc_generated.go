@@ -167,7 +167,7 @@ var map_DeviceAttribute = map[string]string{
 	"bool":    "BoolValue is a true/false value.",
 	"string":  "StringValue is a string. Must not be longer than 64 characters.",
 	"version": "VersionValue is a semantic version according to semver.org spec 2.0.0. Must not be longer than 64 characters.",
-	"list":    "ListValue is a typed-list of attribute values. The list must be homogeneous, meaning that all entries must have the same type of value (int, bool, string or version).",
+	"list":    "ListValue is a typed-list of attribute values. The list must be homogeneous, meaning that all entries must have the same type of value (int, bool, string or version).\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gates.",
 }
 
 func (DeviceAttribute) SwaggerDoc() map[string]string {

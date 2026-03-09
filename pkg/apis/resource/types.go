@@ -611,6 +611,8 @@ type DeviceAttribute struct {
 	// ListValue is a typed-list of attribute values. The list must be homogeneous,
 	// meaning that all entries must have the same type of value (int, bool, string or version).
 	//
+	// This is an alpha field and requires enabling the DRAListTypeAttributes feature gates.
+	//
 	// +optional
 	// +k8s:alpha(since:"1.36")=+oneOf=ValueType
 	// +featureGate=DRAListDeviceAttributes

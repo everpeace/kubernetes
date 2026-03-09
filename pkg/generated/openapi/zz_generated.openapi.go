@@ -47331,7 +47331,7 @@ func schema_k8sio_api_resource_v1_DeviceAttribute(ref common.ReferenceCallback) 
 					},
 					"list": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ListValue is a typed-list of attribute values. The list must be homogeneous, meaning that all entries must have the same type of value (int, bool, string or version).",
+							Description: "ListValue is a typed-list of attribute values. The list must be homogeneous, meaning that all entries must have the same type of value (int, bool, string or version).\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gates.",
 							Ref:         ref(resourcev1.DeviceAttributeListType{}.OpenAPIModelName()),
 						},
 					},
@@ -49940,7 +49940,7 @@ func schema_k8sio_api_resource_v1beta1_DeviceAttribute(ref common.ReferenceCallb
 					},
 					"list": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ListValue is a typed-list of attribute values. The list must be homogeneous, meaning that all entries must have the same type of value (int, bool, string or version).",
+							Description: "ListValue is a typed-list of attribute values. The list must be homogeneous, meaning that all entries must have the same type of value (int, bool, string or version).\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gates.",
 							Ref:         ref(resourcev1beta1.DeviceAttributeListType{}.OpenAPIModelName()),
 						},
 					},
@@ -52213,7 +52213,7 @@ func schema_k8sio_api_resource_v1beta2_DeviceAttribute(ref common.ReferenceCallb
 					},
 					"list": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ListValue is a typed-list of attribute values. The list must be homogeneous, meaning that all entries must have the same type of value (int, bool, string or version).",
+							Description: "ListValue is a typed-list of attribute values. The list must be homogeneous, meaning that all entries must have the same type of value (int, bool, string or version).\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gates.",
 							Ref:         ref(resourcev1beta2.DeviceAttributeListType{}.OpenAPIModelName()),
 						},
 					},
