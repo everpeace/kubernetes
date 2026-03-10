@@ -680,7 +680,6 @@ type DeviceAttributeListType struct {
 	// +listType=atomic
 	// +k8s:alpha(since: "1.36")=+k8s:optional
 	// +k8s:alpha(since: "1.36")=+k8s:unionMember
-	// +k8s:alpha(since: "1.36")=+k8s:eachVal=+k8s:maxLength=64
 	StringValues []string `json:"strings,omitempty" protobuf:"bytes,4,opt,name=strings"`
 
 	// VersionValues is a list of semantic versions according to semver.org spec 2.0.0.
@@ -690,7 +689,6 @@ type DeviceAttributeListType struct {
 	// +listType=atomic
 	// +k8s:alpha(since: "1.36")=+k8s:optional
 	// +k8s:alpha(since: "1.36")=+k8s:unionMember
-	// +k8s:alpha(since: "1.36")=+k8s:eachVal=+k8s:maxLength=64
 	VersionValues []string `json:"versions,omitempty" protobuf:"bytes,5,opt,name=versions"`
 }
 

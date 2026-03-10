@@ -611,7 +611,6 @@ message DeviceAttributeListType {
   // +listType=atomic
   // +k8s:alpha(since: "1.36")=+k8s:optional
   // +k8s:alpha(since: "1.36")=+k8s:unionMember
-  // +k8s:alpha(since: "1.36")=+k8s:eachVal=+k8s:maxLength=64
   repeated string strings = 4;
 
   // VersionValues is a list of semantic versions according to semver.org spec 2.0.0.
@@ -621,7 +620,6 @@ message DeviceAttributeListType {
   // +listType=atomic
   // +k8s:alpha(since: "1.36")=+k8s:optional
   // +k8s:alpha(since: "1.36")=+k8s:unionMember
-  // +k8s:alpha(since: "1.36")=+k8s:eachVal=+k8s:maxLength=64
   repeated string versions = 5;
 }
 

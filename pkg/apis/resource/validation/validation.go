@@ -999,29 +999,6 @@ func validateDeviceAttributeVersionValue(value *string, fldPath *field.Path) fie
 	return allErrs
 }
 
-func validateDeviceAttributeStringValueByDeclarative(value string, fldPath *field.Path) field.ErrorList {
-	var allErrs field.ErrorList
-	if len(value) > resource.DeviceAttributeMaxValueLength {
-		allErrs = append(allErrs,
-			field.TooLong(fldPath, "" /*unused*/, resource.DeviceAttributeMaxValueLength).WithOrigin("maxLength").MarkCoveredByDeclarative(),
-		)
-	}
-	return allErrs
-}
-
-func validateDeviceAttributeVersionValueByDeclarative(value string, fldPath *field.Path) field.ErrorList {
-	var allErrs field.ErrorList
-	if !semverRe.MatchString(value) {
-		allErrs = append(allErrs, field.Invalid(fldPath, value, "must be a string compatible with semver.org spec 2.0.0"))
-	}
-	if len(value) > resource.DeviceAttributeMaxValueLength {
-		allErrs = append(allErrs,
-			field.TooLong(fldPath, "" /*unused*/, resource.DeviceAttributeMaxValueLength).WithOrigin("maxLength").MarkCoveredByDeclarative(),
-		)
-	}
-	return allErrs
-}
-
 func validateDeviceAttributeListValue(deviceAttributeListType *resource.DeviceAttributeListType, fldPath *field.Path) field.ErrorList {
 	var allErrs field.ErrorList
 	numFields := 0
@@ -1035,13 +1012,13 @@ func validateDeviceAttributeListValue(deviceAttributeListType *resource.DeviceAt
 	if deviceAttributeListType.StringValues != nil {
 		numFields++
 		for i, item := range deviceAttributeListType.StringValues {
-			allErrs = append(allErrs, validateDeviceAttributeStringValueByDeclarative(item, fldPath.Child("strings").Index(i))...)
+			allErrs = append(allErrs, validateDeviceAttributeStringValue(&item, fldPath.Child("strings").Index(i))...)
 		}
 	}
 	if deviceAttributeListType.VersionValues != nil {
 		numFields++
 		for i, item := range deviceAttributeListType.VersionValues {
-			allErrs = append(allErrs, validateDeviceAttributeVersionValueByDeclarative(item, fldPath.Child("versions").Index(i))...)
+			allErrs = append(allErrs, validateDeviceAttributeVersionValue(&item, fldPath.Child("versions").Index(i))...)
 		}
 	}
 

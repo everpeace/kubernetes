@@ -456,13 +456,9 @@ func TestValidateResourceSlice(t *testing.T) {
 			wantFailures: field.ErrorList{
 				field.Invalid(field.NewPath("spec", "devices").Index(0).Child("attributes").Key(goodName).Child("list"), badEmptyListValue, "exactly one value must be specified").WithOrigin("union").MarkCoveredByDeclarative(),
 				field.Invalid(field.NewPath("spec", "devices").Index(1).Child("attributes").Key(goodName).Child("list"), badMultipleListValue, "exactly one value must be specified").WithOrigin("union").MarkCoveredByDeclarative(),
-				// field.TooMany(field.NewPath("spec", "devices").Index(2).Child("attributes").Key(goodName).Child("list", "bools"), len(badTooLongListBoolValue.BoolValue), resourceapi.DeviceAttributeMaxListLength).WithOrigin("maxItems").MarkCoveredByDeclarative(),
-				// field.TooMany(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "ints"), len(badTooLongListIntValue.IntValue), resourceapi.DeviceAttributeMaxListLength).WithOrigin("maxItems").MarkCoveredByDeclarative(),
-				// field.TooMany(field.NewPath("spec", "devices").Index(4).Child("attributes").Key(goodName).Child("list", "strings"), len(badTooLongListStringValue.StringValue), resourceapi.DeviceAttributeMaxListLength).WithOrigin("maxItems").MarkCoveredByDeclarative(),
-				field.TooLong(field.NewPath("spec", "devices").Index(2).Child("attributes").Key(goodName).Child("list", "strings").Index(0), badListStringValueTooLong.StringValues[0], resourceapi.DeviceAttributeMaxValueLength).WithOrigin("maxLength").MarkCoveredByDeclarative(),
-				// field.TooMany(field.NewPath("spec", "devices").Index(6).Child("attributes").Key(goodName).Child("list", "versions"), len(badTooLongListVersionValue.VersionValue), resourceapi.DeviceAttributeMaxListLength).WithOrigin("maxItems").MarkCoveredByDeclarative(),
+				field.TooLongMaxLength(field.NewPath("spec", "devices").Index(2).Child("attributes").Key(goodName).Child("list", "strings").Index(0), badListStringValueTooLong.StringValues[0], resourceapi.DeviceAttributeMaxValueLength),
 				field.Invalid(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "versions").Index(0), badListVersionValueTooLong.VersionValues[0], "must be a string compatible with semver.org spec 2.0.0"),
-				field.TooLong(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "versions").Index(0), badListVersionValueTooLong.VersionValues[0], resourceapi.DeviceAttributeMaxValueLength).WithOrigin("maxLength").MarkCoveredByDeclarative(),
+				field.TooLongMaxLength(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("list", "versions").Index(0), badListVersionValueTooLong.VersionValues[0], resourceapi.DeviceAttributeMaxValueLength),
 			},
 
 			slice: func() *resourceapi.ResourceSlice {

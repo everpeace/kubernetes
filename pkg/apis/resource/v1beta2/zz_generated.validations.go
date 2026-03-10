@@ -686,9 +686,6 @@ func Validate_DeviceAttributeListType(ctx context.Context, op operation.Operatio
 			if earlyReturn {
 				return // do not proceed
 			}
-			errs = append(errs, validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, nil, nil, func(ctx context.Context, op operation.Operation, fldPath *field.Path, obj, oldObj *string) field.ErrorList {
-				return validate.MaxLength(ctx, op, fldPath, obj, oldObj, 64)
-			}).MarkAlpha()...)
 			return
 		}(fldPath.Child("strings"), obj.StringValues, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []string { return oldObj.StringValues }), oldObj != nil)...)
 
@@ -707,9 +704,6 @@ func Validate_DeviceAttributeListType(ctx context.Context, op operation.Operatio
 			if earlyReturn {
 				return // do not proceed
 			}
-			errs = append(errs, validate.EachSliceVal(ctx, op, fldPath, obj, oldObj, nil, nil, func(ctx context.Context, op operation.Operation, fldPath *field.Path, obj, oldObj *string) field.ErrorList {
-				return validate.MaxLength(ctx, op, fldPath, obj, oldObj, 64)
-			}).MarkAlpha()...)
 			return
 		}(fldPath.Child("versions"), obj.VersionValues, safe.Field(oldObj, func(oldObj *resourcev1beta2.DeviceAttributeListType) []string { return oldObj.VersionValues }), oldObj != nil)...)
 
