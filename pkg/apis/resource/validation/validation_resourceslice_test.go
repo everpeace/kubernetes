@@ -570,11 +570,11 @@ func TestValidateResourceSlice(t *testing.T) {
 		},
 		"combined-attributes-capacity-length-with-list": {
 			wantFailures: field.ErrorList{
-				field.Invalid(field.NewPath("spec", "devices").Index(2), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attribute entries(scalars and list items) and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
-				field.Invalid(field.NewPath("spec", "devices").Index(3), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attribute entries(scalars and list items) and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
-				field.Invalid(field.NewPath("spec", "devices").Index(4), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attribute entries(scalars and list items) and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
-				field.Invalid(field.NewPath("spec", "devices").Index(5), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attribute entries(scalars and list items) and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
-				field.Invalid(field.NewPath("spec", "devices").Index(6), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attribute entries(scalars and list items) and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(2), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(3), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(4), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(5), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(6), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
 			},
 			slice: func() *resourceapi.ResourceSlice {
 				maxListAttributesWithOneEntryEach := func() map[resourceapi.QualifiedName]resourceapi.DeviceAttribute {
