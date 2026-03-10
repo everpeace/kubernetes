@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"regexp"
 	"slices"
 	"strconv"
@@ -811,7 +812,7 @@ func validateDevice(device resource.Device, oldDevice *resource.Device, fldPath 
 	// Please note that when the DRAListTypeAttributes feature gate is enabled,
 	// we count the total number of attribute entries (scalars and list items)
 	// instead of just the number of attributes, so we need a different check in that case.
-	if !utilfeature.DefaultFeatureGate.Enabled(features.DRAListTypeAttributes) {
+	if !draListTypeAttributesFeatureInUse(device) {
 		attributeAndCapacityLength := len(device.Attributes) + len(device.Capacity)
 		if attributeAndCapacityLength > resource.ResourceSliceMaxAttributesAndCapacitiesPerDevice {
 			allErrs = append(allErrs, field.Invalid(fldPath, attributeAndCapacityLength, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resource.ResourceSliceMaxAttributesAndCapacitiesPerDevice)))
@@ -880,6 +881,15 @@ func validateDevice(device resource.Device, oldDevice *resource.Device, fldPath 
 
 	allErrs = append(allErrs, validateDeviceBindingParameters(device.BindingConditions, device.BindingFailureConditions, fldPath)...)
 	return allErrs
+}
+
+func draListTypeAttributesFeatureInUse(device resource.Device) bool {
+	return slices.ContainsFunc(
+		slices.Collect(maps.Values(device.Attributes)),
+		func(attr resource.DeviceAttribute) bool {
+			return attr.ListValue != nil
+		},
+	)
 }
 
 // numEntriesDeviceAttribute counts the total number of entries in the device's attributes,
