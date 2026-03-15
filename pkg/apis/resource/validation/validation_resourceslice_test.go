@@ -548,7 +548,7 @@ func TestValidateResourceSlice(t *testing.T) {
 			slice: func() *resourceapi.ResourceSlice {
 				slice := testResourceSlice(goodName, goodName, goodName, 5)
 				slice.Spec.Devices[0].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{}
-				slice.Spec.Devices[0].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
+				slice.Spec.Devices[0].Capacity = nil
 				for i := 0; i < resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice; i++ {
 					slice.Spec.Devices[0].Attributes[resourceapi.QualifiedName(fmt.Sprintf("attr_%d", i))] = resourceapi.DeviceAttribute{StringValue: ptr.To("x")}
 				}
@@ -568,73 +568,91 @@ func TestValidateResourceSlice(t *testing.T) {
 				return slice
 			}(),
 		},
-		"combined-attributes-capacity-length-with-list": {
+		"max-attribute-values-with-list": {
 			wantFailures: field.ErrorList{
-				field.Invalid(field.NewPath("spec", "devices").Index(2), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
-				field.Invalid(field.NewPath("spec", "devices").Index(3), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
-				field.Invalid(field.NewPath("spec", "devices").Index(4), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
-				field.Invalid(field.NewPath("spec", "devices").Index(5), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
-				field.Invalid(field.NewPath("spec", "devices").Index(6), resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice+1, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(1), resourceapi.ResourceSliceMaxAttributeValues+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValues)),
+				field.Invalid(field.NewPath("spec", "devices").Index(2), resourceapi.ResourceSliceMaxAttributeValues+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValues)),
+				field.Invalid(field.NewPath("spec", "devices").Index(3), resourceapi.ResourceSliceMaxAttributeValues+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValues)),
+				field.Invalid(field.NewPath("spec", "devices").Index(4), resourceapi.ResourceSliceMaxAttributeValues+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValues)),
+				field.Invalid(field.NewPath("spec", "devices").Index(5), resourceapi.ResourceSliceMaxAttributeValues+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValues)),
+				field.Invalid(field.NewPath("spec", "devices").Index(6), resourceapi.ResourceSliceMaxAttributeValues+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValues)),
+				field.Invalid(field.NewPath("spec", "devices").Index(7), resourceapi.ResourceSliceMaxAttributeValues+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValues)),
+				field.Invalid(field.NewPath("spec", "devices").Index(8), resourceapi.ResourceSliceMaxAttributeValues+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValues)),
 			},
 			slice: func() *resourceapi.ResourceSlice {
-				maxListAttributesWithOneEntryEach := func() map[resourceapi.QualifiedName]resourceapi.DeviceAttribute {
+				maxStringAttributeValuesInList := func() map[resourceapi.QualifiedName]resourceapi.DeviceAttribute {
 					attributes := map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{}
-					for i := range resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice {
+					// (ResourceSliceMaxAttributesAndCapacitiesPerDevice - 1) attribute keys with (ResourceSliceMaxAttributeValues) values
+					// to make room for one additional attribute key with one value so that not hitting the ResourceSliceMaxAttributesAndCapacitiesPerDevice limit,
+					// while hitting the ResourceSliceMaxAttributeValues limit.
+					for i := range resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice - 1 {
+						stringList := []string{"x"}
+						if i == 0 {
+							// The first list gets as many additional strings as allowed by the overall value limit.
+							stringList = slices.Repeat(stringList, resourceapi.ResourceSliceMaxAttributeValues-(resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice-2))
+						}
 						attributes[resourceapi.QualifiedName(fmt.Sprintf("list_attr_%d", i))] = resourceapi.DeviceAttribute{
-							ListValue: new(resourceapi.DeviceAttributeListType{
-								StringValues: []string{"x"},
-							}),
+							ListValue: &resourceapi.DeviceAttributeListType{
+								StringValues: stringList,
+							},
 						}
 					}
 					return attributes
 				}
-				maxListAttributesWithOneEntry := func() map[resourceapi.QualifiedName]resourceapi.DeviceAttribute {
-					attributes := map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{}
-					attributes[resourceapi.QualifiedName("list_attr")] = resourceapi.DeviceAttribute{
-						ListValue: new(resourceapi.DeviceAttributeListType{
-							StringValues: slices.Repeat([]string{"x"}, resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice),
-						}),
-					}
-					return attributes
-				}
 
-				slice := testResourceSlice(goodName, goodName, goodName, 7)
+				slice := testResourceSlice(goodName, goodName, goodName, 9)
 
-				// success: ResourceSliceMaxAttributesAndCapacitiesPerDevice list attributes with one entry each
-				slice.Spec.Devices[0].Attributes = maxListAttributesWithOneEntryEach()
-				slice.Spec.Devices[0].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
+				// success: ResourceSliceMaxAttributeValues attributes with string list values
+				slice.Spec.Devices[0].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[0].Capacity = nil
 
-				// success: one list attribute with ResourceSliceMaxAttributesAndCapacitiesPerDevice entries
-				slice.Spec.Devices[1].Attributes = maxListAttributesWithOneEntry()
-				slice.Spec.Devices[1].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
+				// error: extra int(scalar) attribute beyond ResourceSliceMaxAttributeValues
+				slice.Spec.Devices[1].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[1].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{IntValue: new(int64(1))}
+				slice.Spec.Devices[1].Capacity = nil
 
-				// error: one list attribute with ResourceSliceMaxAttributesAndCapacitiesPerDevice entries plus one string attribute
-				slice.Spec.Devices[2].Attributes = maxListAttributesWithOneEntry()
-				slice.Spec.Devices[2].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{StringValue: new("x")}
-				slice.Spec.Devices[2].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
+				// error: extra bool(scalar) attribute beyond ResourceSliceMaxAttributeValues
+				slice.Spec.Devices[2].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[2].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{BoolValue: new(bool)}
+				slice.Spec.Devices[2].Capacity = nil
 
-				// error: one list attribute with ResourceSliceMaxAttributesAndCapacitiesPerDevice entries plus one other capacity
-				slice.Spec.Devices[3].Attributes = maxListAttributesWithOneEntry()
-				quantity := resource.MustParse("1Gi")
-				capacity := resourceapi.DeviceCapacity{Value: quantity}
-				slice.Spec.Devices[3].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{
-					resourceapi.QualifiedName("extra_cap"): capacity,
-				}
+				// error: extra string(scalar) attribute beyond ResourceSliceMaxAttributeValues
+				slice.Spec.Devices[3].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[3].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{StringValue: ptr.To("x")}
+				slice.Spec.Devices[3].Capacity = nil
 
-				// error: one list attribute with ResourceSliceMaxAttributesAndCapacitiesPerDevice entries plus one int attribute
-				slice.Spec.Devices[4].Attributes = maxListAttributesWithOneEntry()
-				slice.Spec.Devices[4].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{IntValue: new(int64(1))}
-				slice.Spec.Devices[4].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
+				// error: extra version(scalar) attribute beyond ResourceSliceMaxAttributeValues
+				slice.Spec.Devices[4].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[4].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{VersionValue: ptr.To("1.0.0")}
+				slice.Spec.Devices[4].Capacity = nil
 
-				// error: one list attribute with ResourceSliceMaxAttributesAndCapacitiesPerDevice entries plus one bool attribute
-				slice.Spec.Devices[5].Attributes = maxListAttributesWithOneEntry()
-				slice.Spec.Devices[5].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{BoolValue: new(true)}
-				slice.Spec.Devices[5].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
+				// error: extra int attribute(list) beyond ResourceSliceMaxAttributeValues
+				slice.Spec.Devices[5].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[5].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{ListValue: &resourceapi.DeviceAttributeListType{
+					IntValues: []int64{int64(1)},
+				}}
+				slice.Spec.Devices[5].Capacity = nil
 
-				// error: one list attribute with ResourceSliceMaxAttributesAndCapacitiesPerDevice entries plus one version attribute
-				slice.Spec.Devices[6].Attributes = maxListAttributesWithOneEntry()
-				slice.Spec.Devices[6].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{VersionValue: new("1.0.0")}
-				slice.Spec.Devices[6].Capacity = map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{}
+				// error: extra bool attribute(list) beyond ResourceSliceMaxAttributeValues
+				slice.Spec.Devices[6].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[6].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{ListValue: &resourceapi.DeviceAttributeListType{
+					BoolValues: []bool{true},
+				}}
+				slice.Spec.Devices[6].Capacity = nil
+
+				// error: extra string attribute(list) beyond ResourceSliceMaxAttributeValues
+				slice.Spec.Devices[7].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[7].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{ListValue: &resourceapi.DeviceAttributeListType{
+					StringValues: []string{"extra"},
+				}}
+				slice.Spec.Devices[7].Capacity = nil
+
+				// error: extra version attribute(list) beyond ResourceSliceMaxAttributeValues
+				slice.Spec.Devices[8].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[8].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{ListValue: &resourceapi.DeviceAttributeListType{
+					VersionValues: []string{"1.0.0"},
+				}}
+				slice.Spec.Devices[8].Capacity = nil
 
 				return slice
 			}(),
