@@ -354,9 +354,7 @@ func newCompiler(features Features) *compiler {
 		attributeType = withMaxElements(
 			// use DynType instead of AnyType so that iterate functions can work(e.g., exists, all, etc.)
 			apiservercel.DynType,
-			// if list attributes are enabled, the maximum size of the attribute could be larger.
-			// We have to admit this value for maxElements because we can have no knowledge the attribute is scalar or list.
-			max(resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice, resourceapi.DeviceAttributeMaxValueLength),
+			resourceapi.DeviceAttributeMaxValueLength,
 		)
 	}
 	// Each map is bound by the maximum number of different attributes.
@@ -420,11 +418,11 @@ func newCompiler(features Features) *compiler {
 				return features.EnableListTypeAttributes
 			},
 			EnvOptions: []cel.EnvOption{
-				cel.Function("include",
-					cel.MemberOverload("dra_include_dyn_dyn",
+				cel.Function("includes",
+					cel.MemberOverload("dra_includes_dyn_dyn",
 						[]*cel.Type{cel.DynType, cel.DynType},
 						cel.BoolType,
-						cel.BinaryBinding(includeFunc),
+						cel.BinaryBinding(includesFunc),
 					),
 				),
 			},
@@ -438,7 +436,7 @@ func newCompiler(features Features) *compiler {
 	return &compiler{envset: envset, deviceType: deviceTypeV134ConsumableCapacity, features: features, attributeType: attributeType}
 }
 
-func includeFunc(target, arg ref.Val) ref.Val {
+func includesFunc(target, arg ref.Val) ref.Val {
 	if list, ok := target.(traits.Lister); ok {
 		it := list.Iterator()
 		for it.HasNext() == types.True {
@@ -508,13 +506,12 @@ func (e *draCostEstimator) EstimateSize(element checker.AstNode) *checker.SizeEs
 }
 
 func (e *draCostEstimator) EstimateCallCost(function, overloadID string, target *checker.AstNode, args []checker.AstNode) *checker.CallEstimate {
-	if function == "include" && overloadID == "dra_include_dyn_dyn" {
-		// "<target>.include(<arg>)" is equivalent with "<arg> in <target>"
+	if function == "includes" && overloadID == "dra_includes_dyn_dyn" {
+		// "<target>.includes(<arg>)" is equivalent with "<arg> in <target>"
 		// whose complexity is linear with the size of the target.
 		if target != nil {
-			if sz := e.EstimateSize(*target); sz != nil {
-				return &checker.CallEstimate{CostEstimate: sz.MultiplyByCost(checker.CostEstimate{Min: 1, Max: 1})}
-			}
+			targetSizeEstimate := checker.SizeEstimate{Min: 0, Max: resourceapi.ResourceSliceMaxAttributeValues}
+			return &checker.CallEstimate{CostEstimate: targetSizeEstimate.MultiplyByCost(checker.CostEstimate{Min: 1, Max: 1})}
 		}
 	}
 

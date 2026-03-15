@@ -260,174 +260,174 @@ var testcases = map[string]struct {
 		expectMatch:              true,
 		expectCost:               5 + ((2 + 4) * maxElementsListTypeEnabled /* (cost(loopCondition=="not_strictly_false(accu)") + cost(loopStep=="accu && (x.isGreaterThan(semver("0.0.1"))")) * maxElementsListTypeEnabled */),
 	},
-	"disabled-list-type-attributes--include-function": {
+	"disabled-list-type-attributes--includes-function": {
 		enableConsumableCapacity: false,
-		// "include" is injected via VersionedOptions.FeatureEnabled.
+		// "includes" is injected via VersionedOptions.FeatureEnabled.
 		// Use NewExpressions here because normal StoredExpressions ignores VersionedOptions.FeatureEnabled.
 		envType:            ptr.To(environment.NewExpressions),
-		expression:         `device.attributes["dra.example.com"].name.include("fish")`,
+		expression:         `device.attributes["dra.example.com"].name.includes("fish")`,
 		driver:             "dra.example.com",
-		expectCompileError: "undeclared reference to 'include'",
+		expectCompileError: "undeclared reference to 'includes'",
 	},
-	"enabled-list-type-attributes--include-function-on-bool-scalar-positive": {
+	"enabled-list-type-attributes--includes-function-on-bool-scalar-positive": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(true)`,
+		expression:               `device.attributes["dra.example.com"].name.includes(true)`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValue: new(true)}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               4 + 64, /* cost of "include" is max list length */
+		expectCost:               4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-bool-scalar-negative": {
+	"enabled-list-type-attributes--includes-function-on-bool-scalar-negative": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(true)`,
+		expression:               `device.attributes["dra.example.com"].name.includes(true)`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValue: new(false)}},
 		driver:                   "dra.example.com",
 		expectMatch:              false,
-		expectCost:               4 + 64, /* cost of "include" is max list length */
+		expectCost:               4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-bool-list-positive": {
+	"enabled-list-type-attributes--includes-function-on-bool-list-positive": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(true)`,
+		expression:               `device.attributes["dra.example.com"].name.includes(true)`,
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 			"name": {ListValue: &resourceapi.DeviceAttributeListType{BoolValues: []bool{true, false}}},
 		},
 		driver:      "dra.example.com",
 		expectMatch: true,
-		expectCost:  4 + 64, /* cost of "include" is max list length */
+		expectCost:  4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-bool-list-negative": {
+	"enabled-list-type-attributes--includes-function-on-bool-list-negative": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(false)`,
+		expression:               `device.attributes["dra.example.com"].name.includes(false)`,
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 			"name": {ListValue: &resourceapi.DeviceAttributeListType{BoolValues: []bool{true, true}}},
 		},
 		driver:      "dra.example.com",
 		expectMatch: false,
-		expectCost:  4 + 64, /* cost of "include" is max list length */
+		expectCost:  4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-int-scalar-positive": {
+	"enabled-list-type-attributes--includes-function-on-int-scalar-positive": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(1)`,
+		expression:               `device.attributes["dra.example.com"].name.includes(1)`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValue: new(int64(1))}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               4 + 64, /* cost of "include" is max list length */
+		expectCost:               4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-int-scalar-negative": {
+	"enabled-list-type-attributes--includes-function-on-int-scalar-negative": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(1)`,
+		expression:               `device.attributes["dra.example.com"].name.includes(1)`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValue: new(int64(2))}},
 		driver:                   "dra.example.com",
 		expectMatch:              false,
-		expectCost:               4 + 64, /* cost of "include" is max list length */
+		expectCost:               4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-int-list-positive": {
+	"enabled-list-type-attributes--includes-function-on-int-list-positive": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(1)`,
+		expression:               `device.attributes["dra.example.com"].name.includes(1)`,
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 			"name": {ListValue: &resourceapi.DeviceAttributeListType{IntValues: []int64{1, 2}}},
 		},
 		driver:      "dra.example.com",
 		expectMatch: true,
-		expectCost:  4 + 64, /* cost of "include" is max list length */
+		expectCost:  4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-int-list-negative": {
+	"enabled-list-type-attributes--includes-function-on-int-list-negative": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(3)`,
+		expression:               `device.attributes["dra.example.com"].name.includes(3)`,
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 			"name": {ListValue: &resourceapi.DeviceAttributeListType{IntValues: []int64{1, 2}}},
 		},
 		driver:      "dra.example.com",
 		expectMatch: false,
-		expectCost:  4 + 64, /* cost of "include" is max list length */
+		expectCost:  4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-string-scalar-positive": {
+	"enabled-list-type-attributes--includes-function-on-string-scalar-positive": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include("fish")`,
+		expression:               `device.attributes["dra.example.com"].name.includes("fish")`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValue: new("fish")}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               4 + 64, /* cost of "include" is max list length */
+		expectCost:               4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-string-scalar-negative": {
+	"enabled-list-type-attributes--includes-function-on-string-scalar-negative": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include("bird")`,
+		expression:               `device.attributes["dra.example.com"].name.includes("bird")`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValue: new("fish")}},
 		driver:                   "dra.example.com",
 		expectMatch:              false,
-		expectCost:               4 + 64, /* cost of "include" is max list length */
+		expectCost:               4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-string-list-positive": {
+	"enabled-list-type-attributes--includes-function-on-string-list-positive": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include("fish")`,
+		expression:               `device.attributes["dra.example.com"].name.includes("fish")`,
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 			"name": {ListValue: &resourceapi.DeviceAttributeListType{StringValues: []string{"fish", "bird"}}},
 		},
 		driver:      "dra.example.com",
 		expectMatch: true,
-		expectCost:  4 + 64, /* cost of "include" is max list length */
+		expectCost:  4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-string-list-negative": {
+	"enabled-list-type-attributes--includes-function-on-string-list-negative": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include("cat")`,
+		expression:               `device.attributes["dra.example.com"].name.includes("cat")`,
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 			"name": {ListValue: &resourceapi.DeviceAttributeListType{StringValues: []string{"fish", "bird"}}},
 		},
 		driver:      "dra.example.com",
 		expectMatch: false,
-		expectCost:  4 + 64, /* cost of "include" is max list length */
+		expectCost:  4 + 48, /* cost of "includes" is max list length */
 	},
-	"enabled-list-type-attributes--include-function-on-semver-scalar-positive": {
+	"enabled-list-type-attributes--includes-function-on-semver-scalar-positive": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(semver("1.0.0"))`,
+		expression:               `device.attributes["dra.example.com"].name.includes(semver("1.0.0"))`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValue: new("1.0.0")}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               4 + 64 /* cost of "include" is max list length */ + 1,
+		expectCost:               4 + 48 /* cost of "includes" is max list length */ + 1,
 	},
-	"enabled-list-type-attributes--include-function-on-semver-scalar-negative": {
+	"enabled-list-type-attributes--includes-function-on-semver-scalar-negative": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(semver("2.0.0"))`,
+		expression:               `device.attributes["dra.example.com"].name.includes(semver("2.0.0"))`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValue: new("1.0.0")}},
 		driver:                   "dra.example.com",
 		expectMatch:              false,
-		expectCost:               4 + 64 /* cost of "include" is max list length */ + 1,
+		expectCost:               4 + 48 /* cost of "includes" is max list length */ + 1,
 	},
-	"enabled-list-type-attributes--include-function-on-semver-list-positive": {
+	"enabled-list-type-attributes--includes-function-on-semver-list-positive": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(semver("1.0.0"))`,
+		expression:               `device.attributes["dra.example.com"].name.includes(semver("1.0.0"))`,
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 			"name": {ListValue: &resourceapi.DeviceAttributeListType{VersionValues: []string{"1.0.0", "2.0.0"}}},
 		},
 		driver:      "dra.example.com",
 		expectMatch: true,
-		expectCost:  4 + 64 /* cost of "include" is max list length */ + 1,
+		expectCost:  4 + 48 /* cost of "includes" is max list length */ + 1,
 	},
-	"enabled-list-type-attributes--include-function-on-semver-list-negative": {
+	"enabled-list-type-attributes--includes-function-on-semver-list-negative": {
 		enableListTypeAttributes: true,
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].name.include(semver("3.0.0"))`,
+		expression:               `device.attributes["dra.example.com"].name.includes(semver("3.0.0"))`,
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 			"name": {ListValue: &resourceapi.DeviceAttributeListType{VersionValues: []string{"1.0.0", "2.0.0"}}},
 		},
 		driver:      "dra.example.com",
 		expectMatch: false,
-		expectCost:  4 + 64 /* cost of "include" is max list length */ + 1,
+		expectCost:  4 + 48 /* cost of "includes" is max list length */ + 1,
 	},
 	"version": {
 		expression:  `device.attributes["dra.example.com"].name.isGreaterThan(semver("0.0.1"))`,
