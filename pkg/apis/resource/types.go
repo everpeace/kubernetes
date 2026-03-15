@@ -546,9 +546,11 @@ type CapacityRequestPolicyRange struct {
 }
 
 // Limit for the sum of the number of entries in both attributes and capacity.
-// If DRAListTypeAttributes feature gate is enabled, the limit applies
-// to the sum of the number of entries in scalar attributes, capacity and items in list attributes.
 const ResourceSliceMaxAttributesAndCapacitiesPerDevice = 32
+
+// Limit per device for the total number of string, version, bool or int values
+// in list and non-list attributes.
+const ResourceSliceMaxAttributeValues = 48
 
 // QualifiedName is the name of a device attribute or capacity.
 //
