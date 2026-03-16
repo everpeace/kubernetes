@@ -458,10 +458,18 @@ func TestValidateResourceSlice(t *testing.T) {
 				field.TooLongMaxLength(field.NewPath("spec", "devices").Index(1).Child("attributes").Key(goodName).Child("strings").Index(0), badListStringValueTooLong.StringValues[0], resourceapi.DeviceAttributeMaxValueLength),
 				field.Invalid(field.NewPath("spec", "devices").Index(2).Child("attributes").Key(goodName).Child("versions").Index(0), badListVersionValueTooLong.VersionValues[0], "must be a string compatible with semver.org spec 2.0.0"),
 				field.TooLongMaxLength(field.NewPath("spec", "devices").Index(2).Child("attributes").Key(goodName).Child("versions").Index(0), badListVersionValueTooLong.VersionValues[0], resourceapi.DeviceAttributeMaxValueLength),
+				field.Invalid(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName).Child("bools"), []bool{}, "must not be empty if specified"),
+				field.Invalid(field.NewPath("spec", "devices").Index(3).Child("attributes").Key(goodName), "", "exactly one value must be specified").WithOrigin("union").MarkCoveredByDeclarative(),
+				field.Invalid(field.NewPath("spec", "devices").Index(4).Child("attributes").Key(goodName).Child("ints"), []int64{}, "must not be empty if specified"),
+				field.Invalid(field.NewPath("spec", "devices").Index(4).Child("attributes").Key(goodName), "", "exactly one value must be specified").WithOrigin("union").MarkCoveredByDeclarative(),
+				field.Invalid(field.NewPath("spec", "devices").Index(5).Child("attributes").Key(goodName).Child("strings"), []string{}, "must not be empty if specified"),
+				field.Invalid(field.NewPath("spec", "devices").Index(5).Child("attributes").Key(goodName), "", "exactly one value must be specified").WithOrigin("union").MarkCoveredByDeclarative(),
+				field.Invalid(field.NewPath("spec", "devices").Index(6).Child("attributes").Key(goodName).Child("versions"), []string{}, "must not be empty if specified"),
+				field.Invalid(field.NewPath("spec", "devices").Index(6).Child("attributes").Key(goodName), "", "exactly one value must be specified").WithOrigin("union").MarkCoveredByDeclarative(),
 			},
 
 			slice: func() *resourceapi.ResourceSlice {
-				slice := testResourceSlice(goodName, goodName, goodName, 3)
+				slice := testResourceSlice(goodName, goodName, goodName, 7)
 				slice.Spec.Devices[0].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					resourceapi.QualifiedName(goodName): badMultipleListValue,
 				}
@@ -471,6 +479,19 @@ func TestValidateResourceSlice(t *testing.T) {
 				// List of VersionValue(max length and invalid)
 				slice.Spec.Devices[2].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
 					resourceapi.QualifiedName(goodName): badListVersionValueTooLong,
+				}
+				// non-nil & empty list values
+				slice.Spec.Devices[3].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
+					resourceapi.QualifiedName(goodName): {BoolValues: []bool{}},
+				}
+				slice.Spec.Devices[4].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
+					resourceapi.QualifiedName(goodName): {IntValues: []int64{}},
+				}
+				slice.Spec.Devices[5].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
+					resourceapi.QualifiedName(goodName): {StringValues: []string{}},
+				}
+				slice.Spec.Devices[6].Attributes = map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
+					resourceapi.QualifiedName(goodName): {VersionValues: []string{}},
 				}
 				return slice
 			}(),
@@ -672,7 +693,6 @@ func TestValidateResourceSlice(t *testing.T) {
 				slice.Spec.Devices[13].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice - 1)
 				slice.Spec.Devices[13].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{VersionValues: []string{"1.0.0", "1.0.1"}}
 				slice.Spec.Devices[13].Capacity = nil
-
 				return slice
 			}(),
 		},

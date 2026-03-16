@@ -610,7 +610,7 @@ type DeviceAttribute struct {
 	// +oneOf=ValueType
 	VersionValue *string
 
-	// IntValues is a list of numbers.
+	// IntValues is a non-empty list of numbers.
 	//
 	// This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
 	//
@@ -620,7 +620,7 @@ type DeviceAttribute struct {
 	// +featureGate=DRAListTypeAttributes
 	IntValues []int64
 
-	// BoolValues is a list of true/false values.
+	// BoolValues is a non-empty list of true/false values.
 	//
 	// +optional
 	// +listType=atomic
@@ -628,7 +628,7 @@ type DeviceAttribute struct {
 	// +featureGate=DRAListTypeAttributes
 	BoolValues []bool
 
-	// StringValues is a list of strings.
+	// StringValues is a non-empty list of strings.
 	// Each string must not be longer than 64 characters.
 	//
 	// This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
@@ -639,7 +639,7 @@ type DeviceAttribute struct {
 	// +featureGate=DRAListTypeAttributes
 	StringValues []string
 
-	// VersionValues is a list of semantic versions according to semver.org spec 2.0.0.
+	// VersionValues is a non-empty list of semantic versions according to semver.org spec 2.0.0.
 	// Each version string must not be longer than 64 characters.
 	//
 	// This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.

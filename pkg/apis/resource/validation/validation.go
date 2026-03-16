@@ -952,21 +952,29 @@ func validateDeviceAttribute(attribute resource.DeviceAttribute, fldPath *field.
 	}
 	if len(attribute.BoolValues) > 0 {
 		numFields++
+	} else if attribute.BoolValues != nil {
+		allErrs = append(allErrs, field.Invalid(fldPath.Child("bools"), attribute.BoolValues, "must not be empty if specified"))
 	}
 	if len(attribute.IntValues) > 0 {
 		numFields++
+	} else if attribute.IntValues != nil {
+		allErrs = append(allErrs, field.Invalid(fldPath.Child("ints"), attribute.IntValues, "must not be empty if specified"))
 	}
 	if len(attribute.StringValues) > 0 {
 		numFields++
 		for i, item := range attribute.StringValues {
 			allErrs = append(allErrs, validateDeviceAttributeStringValue(&item, fldPath.Child("strings").Index(i))...)
 		}
+	} else if attribute.StringValues != nil {
+		allErrs = append(allErrs, field.Invalid(fldPath.Child("strings"), attribute.StringValues, "must not be empty if specified"))
 	}
 	if len(attribute.VersionValues) > 0 {
 		numFields++
 		for i, item := range attribute.VersionValues {
 			allErrs = append(allErrs, validateDeviceAttributeVersionValue(&item, fldPath.Child("versions").Index(i))...)
 		}
+	} else if attribute.VersionValues != nil {
+		allErrs = append(allErrs, field.Invalid(fldPath.Child("versions"), attribute.VersionValues, "must not be empty if specified"))
 	}
 
 	switch numFields {

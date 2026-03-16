@@ -644,7 +644,7 @@ type DeviceAttribute struct {
 	// +k8s:alpha(since: "1.36")=+k8s:unionMember
 	VersionValue *string `json:"version,omitempty" protobuf:"bytes,5,opt,name=version"`
 
-	// IntValues is a list of numbers.
+	// IntValues is a non-empty list of numbers.
 	//
 	// This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
 	//
@@ -656,7 +656,7 @@ type DeviceAttribute struct {
 	// +featureGate=DRAListTypeAttributes
 	IntValues []int64 `json:"ints,omitempty" protobuf:"varint,6,opt,name=ints"`
 
-	// BoolValues is a list of true/false values.
+	// BoolValues is a non-empty list of true/false values.
 	//
 	// +optional
 	// +listType=atomic
@@ -666,7 +666,7 @@ type DeviceAttribute struct {
 	// +featureGate=DRAListTypeAttributes
 	BoolValues []bool `json:"bools,omitempty" protobuf:"varint,7,opt,name=bools"`
 
-	// StringValues is a list of strings.
+	// StringValues is a non-empty list of strings.
 	// Each string must not be longer than 64 characters.
 	//
 	// This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
@@ -679,7 +679,7 @@ type DeviceAttribute struct {
 	// +featureGate=DRAListTypeAttributes
 	StringValues []string `json:"strings,omitempty" protobuf:"bytes,8,opt,name=strings"`
 
-	// VersionValues is a list of semantic versions according to semver.org spec 2.0.0.
+	// VersionValues is a non-empty list of semantic versions according to semver.org spec 2.0.0.
 	// Each version string must not be longer than 64 characters.
 	//
 	// This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
