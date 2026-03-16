@@ -950,19 +950,19 @@ func validateDeviceAttribute(attribute resource.DeviceAttribute, fldPath *field.
 		numFields++
 		allErrs = append(allErrs, validateDeviceAttributeVersionValue(attribute.VersionValue, fldPath.Child("version"))...)
 	}
-	if attribute.BoolValues != nil {
+	if len(attribute.BoolValues) > 0 {
 		numFields++
 	}
-	if attribute.IntValues != nil {
+	if len(attribute.IntValues) > 0 {
 		numFields++
 	}
-	if attribute.StringValues != nil {
+	if len(attribute.StringValues) > 0 {
 		numFields++
 		for i, item := range attribute.StringValues {
 			allErrs = append(allErrs, validateDeviceAttributeStringValue(&item, fldPath.Child("strings").Index(i))...)
 		}
 	}
-	if attribute.VersionValues != nil {
+	if len(attribute.VersionValues) > 0 {
 		numFields++
 		for i, item := range attribute.VersionValues {
 			allErrs = append(allErrs, validateDeviceAttributeVersionValue(&item, fldPath.Child("versions").Index(i))...)
