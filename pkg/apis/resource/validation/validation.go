@@ -810,9 +810,9 @@ func validateDevice(device resource.Device, oldDevice *resource.Device, fldPath 
 	// field is too large, then so is the combination.
 	// we count the total number of attribute entries (scalars and list items)
 	// instead of just the number of attributes.
-	attributeEntriesAndCapacityLength := len(device.Attributes) + len(device.Capacity)
-	if attributeEntriesAndCapacityLength > resource.ResourceSliceMaxAttributesAndCapacitiesPerDevice {
-		allErrs = append(allErrs, field.Invalid(fldPath, attributeEntriesAndCapacityLength, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resource.ResourceSliceMaxAttributesAndCapacitiesPerDevice)))
+	attributeAndCapacityLength := len(device.Attributes) + len(device.Capacity)
+	if attributeAndCapacityLength > resource.ResourceSliceMaxAttributesAndCapacitiesPerDevice {
+		allErrs = append(allErrs, field.Invalid(fldPath, attributeAndCapacityLength, fmt.Sprintf("the total number of attributes and capacities must not exceed %d", resource.ResourceSliceMaxAttributesAndCapacitiesPerDevice)))
 	}
 	numAttributeValues := numEntriesDeviceAttribute(device)
 	if numAttributeValues > resource.ResourceSliceMaxAttributeValuesPerDevice {
