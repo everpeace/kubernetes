@@ -175,18 +175,21 @@ func (c compiler) CompileCELExpression(expression string, options Options) Compi
 	if issues != nil {
 		return resultError("compilation failed: "+issues.String(), apiservercel.ErrorTypeInvalid)
 	}
+
 	expectedReturnType := cel.BoolType
+	unknownReturnType := cel.AnyType
 	if c.features.EnableListTypeAttributes {
-		if ast.OutputType() != expectedReturnType &&
-			ast.OutputType() != cel.DynType {
-			return resultError(fmt.Sprintf("must evaluate to %v or the unknown type, not %v", expectedReturnType.String(), ast.OutputType().String()), apiservercel.ErrorTypeInvalid)
-		}
-	} else {
-		if ast.OutputType() != expectedReturnType &&
-			ast.OutputType() != cel.AnyType {
-			return resultError(fmt.Sprintf("must evaluate to %v or the unknown type, not %v", expectedReturnType.String(), ast.OutputType().String()), apiservercel.ErrorTypeInvalid)
-		}
+		// When the DRAListTypeAttributes feature is enabled,
+		// we use DynType instead of AnyType for the attributes so that standard iterate functions(e.g., exists, all etc.)
+		// and overridden includes function can work (See newCompiler() for details).
+		// Thus, the unknown return type can also be DynType, not just BoolType.
+		unknownReturnType = cel.DynType
 	}
+	if ast.OutputType() != expectedReturnType &&
+		ast.OutputType() != unknownReturnType {
+		return resultError(fmt.Sprintf("must evaluate to %v or the unknown type, not %v", expectedReturnType.String(), ast.OutputType().String()), apiservercel.ErrorTypeInvalid)
+	}
+
 	_, err = cel.AstToCheckedExpr(ast)
 	if err != nil {
 		// should be impossible since env.Compile returned no issues
