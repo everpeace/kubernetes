@@ -246,8 +246,8 @@ func (c *compiler) newCostEstimator() checker.CostEstimator {
 // This failure then aborts scheduling until ResourceSlices get updated.
 // This is better than incorrectly scheduling a pod
 // because that is harder to correct.
-func getAttributeValue(attr resourceapi.DeviceAttribute, features Features) (any, error) {
-	if features.EnableListTypeAttributes {
+func (c CompilationResult) getAttributeValue(attr resourceapi.DeviceAttribute) (any, error) {
+	if c.features.EnableListTypeAttributes {
 		switch {
 		case attr.IntValues != nil:
 			return attr.IntValues, nil
@@ -292,7 +292,7 @@ func (c CompilationResult) DeviceMatches(ctx context.Context, input Device) (boo
 	// which wraps the underlying maps and directly looks up values.
 	attributes := make(map[string]any)
 	for name, attr := range input.Attributes {
-		value, err := getAttributeValue(attr, c.features)
+		value, err := c.getAttributeValue(attr)
 		if err != nil {
 			return false, nil, fmt.Errorf("attribute %s: %w", name, err)
 		}
