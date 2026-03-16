@@ -731,6 +731,10 @@ func autoConvert_v1_DeviceAttribute_To_v1beta1_DeviceAttribute(in *v1.DeviceAttr
 	out.BoolValue = (*bool)(unsafe.Pointer(in.BoolValue))
 	out.StringValue = (*string)(unsafe.Pointer(in.StringValue))
 	out.VersionValue = (*string)(unsafe.Pointer(in.VersionValue))
+	out.IntValues = *(*[]int64)(unsafe.Pointer(&in.IntValues))
+	out.BoolValues = *(*[]bool)(unsafe.Pointer(&in.BoolValues))
+	out.StringValues = *(*[]string)(unsafe.Pointer(&in.StringValues))
+	out.VersionValues = *(*[]string)(unsafe.Pointer(&in.VersionValues))
 	return nil
 }
 
@@ -744,6 +748,10 @@ func autoConvert_v1beta1_DeviceAttribute_To_v1_DeviceAttribute(in *resourcev1bet
 	out.BoolValue = (*bool)(unsafe.Pointer(in.BoolValue))
 	out.StringValue = (*string)(unsafe.Pointer(in.StringValue))
 	out.VersionValue = (*string)(unsafe.Pointer(in.VersionValue))
+	out.IntValues = *(*[]int64)(unsafe.Pointer(&in.IntValues))
+	out.BoolValues = *(*[]bool)(unsafe.Pointer(&in.BoolValues))
+	out.StringValues = *(*[]string)(unsafe.Pointer(&in.StringValues))
+	out.VersionValues = *(*[]string)(unsafe.Pointer(&in.VersionValues))
 	return nil
 }
 
