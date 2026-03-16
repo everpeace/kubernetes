@@ -236,6 +236,13 @@ func (c *compiler) newCostEstimator() checker.CostEstimator {
 // getAttributeValue returns the native representation of the one value that
 // should be stored in the attribute, otherwise an error. An error is
 // also returned when there is no supported value.
+//
+// If the DRAListTypeAttributes feature  is disabled and an attribute
+// contains a list value, then we fall through to returning the
+// "unsupported attribute value" error below.
+// This failure then aborts scheduling until ResourceSlices get updated.
+// This is better than incorrectly scheduling a pod
+// because that is harder to correct.
 func getAttributeValue(attr resourceapi.DeviceAttribute, features Features) (any, error) {
 	if features.EnableListTypeAttributes {
 		switch {
