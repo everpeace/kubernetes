@@ -885,7 +885,7 @@ func validateDevice(device resource.Device, oldDevice *resource.Device, fldPath 
 func numEntriesDeviceAttribute(device resource.Device) int {
 	numEntries := 0
 	for _, attr := range device.Attributes {
-		if attr.BoolValues == nil && attr.IntValues == nil && attr.StringValues == nil && attr.VersionValues == nil {
+		if len(attr.BoolValues) == 0 && len(attr.IntValues) == 0 && len(attr.StringValues) == 0 && len(attr.VersionValues) == 0 {
 			numEntries++
 			continue
 		}

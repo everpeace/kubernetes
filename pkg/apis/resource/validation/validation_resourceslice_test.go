@@ -576,9 +576,13 @@ func TestValidateResourceSlice(t *testing.T) {
 				field.Invalid(field.NewPath("spec", "devices").Index(8), resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValuesPerDevice)),
 				field.Invalid(field.NewPath("spec", "devices").Index(9), resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValuesPerDevice)),
 				field.Invalid(field.NewPath("spec", "devices").Index(9).Child("attributes").Key("mixed_list_attrs"), badListAttributeTooManyValueWithMixedTypes, "exactly one value must be specified").MarkCoveredByDeclarative(),
+				field.Invalid(field.NewPath("spec", "devices").Index(10), resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValuesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(11), resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValuesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(12), resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValuesPerDevice)),
+				field.Invalid(field.NewPath("spec", "devices").Index(13), resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1, fmt.Sprintf("the total number of attribute values must not exceed %d", resourceapi.ResourceSliceMaxAttributeValuesPerDevice)),
 			},
 			slice: func() *resourceapi.ResourceSlice {
-				maxStringAttributeValuesInList := func() map[resourceapi.QualifiedName]resourceapi.DeviceAttribute {
+				maxStringAttributeValuesInList := func(maxAttributeValues int) map[resourceapi.QualifiedName]resourceapi.DeviceAttribute {
 					attributes := map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{}
 					// (ResourceSliceMaxAttributesAndCapacitiesPerDevice - 1) attribute keys with (ResourceSliceMaxAttributeValuesPerDevice) values
 					// to make room for one additional attribute key with one value so that not hitting the ResourceSliceMaxAttributesAndCapacitiesPerDevice limit,
@@ -587,7 +591,7 @@ func TestValidateResourceSlice(t *testing.T) {
 						stringList := []string{"x"}
 						if i == 0 {
 							// The first list gets as many additional strings as allowed by the overall value limit.
-							stringList = slices.Repeat(stringList, resourceapi.ResourceSliceMaxAttributeValuesPerDevice-(resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice-2))
+							stringList = slices.Repeat(stringList, maxAttributeValues-(resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice-2))
 						}
 						attributes[resourceapi.QualifiedName(fmt.Sprintf("list_attr_%d", i))] = resourceapi.DeviceAttribute{
 							StringValues: stringList,
@@ -596,49 +600,49 @@ func TestValidateResourceSlice(t *testing.T) {
 					return attributes
 				}
 
-				slice := testResourceSlice(goodName, goodName, goodName, 10)
+				slice := testResourceSlice(goodName, goodName, goodName, 14)
 
 				// success: ResourceSliceMaxAttributeValues attributes with string list values
-				slice.Spec.Devices[0].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[0].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[0].Capacity = nil
 
 				// error: extra int(scalar) attribute beyond ResourceSliceMaxAttributeValues
-				slice.Spec.Devices[1].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[1].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[1].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{IntValue: new(int64(1))}
 				slice.Spec.Devices[1].Capacity = nil
 
 				// error: extra bool(scalar) attribute beyond ResourceSliceMaxAttributeValues
-				slice.Spec.Devices[2].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[2].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[2].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{BoolValue: new(bool)}
 				slice.Spec.Devices[2].Capacity = nil
 
 				// error: extra string(scalar) attribute beyond ResourceSliceMaxAttributeValues
-				slice.Spec.Devices[3].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[3].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[3].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{StringValue: ptr.To("x")}
 				slice.Spec.Devices[3].Capacity = nil
 
 				// error: extra version(scalar) attribute beyond ResourceSliceMaxAttributeValues
-				slice.Spec.Devices[4].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[4].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[4].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{VersionValue: ptr.To("1.0.0")}
 				slice.Spec.Devices[4].Capacity = nil
 
 				// error: extra int attribute(list) beyond ResourceSliceMaxAttributeValues
-				slice.Spec.Devices[5].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[5].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[5].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{IntValues: []int64{int64(1)}}
 				slice.Spec.Devices[5].Capacity = nil
 
 				// error: extra bool attribute(list) beyond ResourceSliceMaxAttributeValues
-				slice.Spec.Devices[6].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[6].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[6].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{BoolValues: []bool{true}}
 				slice.Spec.Devices[6].Capacity = nil
 
 				// error: extra string attribute(list) beyond ResourceSliceMaxAttributeValues
-				slice.Spec.Devices[7].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[7].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[7].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{StringValues: []string{"extra"}}
 				slice.Spec.Devices[7].Capacity = nil
 
 				// error: extra version attribute(list) beyond ResourceSliceMaxAttributeValues
-				slice.Spec.Devices[8].Attributes = maxStringAttributeValuesInList()
+				slice.Spec.Devices[8].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice)
 				slice.Spec.Devices[8].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{VersionValues: []string{"1.0.0"}}
 				slice.Spec.Devices[8].Capacity = nil
 
@@ -647,6 +651,27 @@ func TestValidateResourceSlice(t *testing.T) {
 					resourceapi.QualifiedName("mixed_list_attrs"): badListAttributeTooManyValueWithMixedTypes,
 				}
 				slice.Spec.Devices[9].Capacity = nil
+
+				// error: extra bool values (list length 2) beyond ResourceSliceMaxAttributeValues.
+				// This verifies that BoolValues are counted by list length, not as a scalar fallback.
+				slice.Spec.Devices[10].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice - 1)
+				slice.Spec.Devices[10].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{BoolValues: []bool{true, false}}
+				slice.Spec.Devices[10].Capacity = nil
+
+				// error: extra int values (list length 2) beyond ResourceSliceMaxAttributeValues.
+				slice.Spec.Devices[11].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice - 1)
+				slice.Spec.Devices[11].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{IntValues: []int64{1, 2}}
+				slice.Spec.Devices[11].Capacity = nil
+
+				// error: extra string values (list length 2) beyond ResourceSliceMaxAttributeValues.
+				slice.Spec.Devices[12].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice - 1)
+				slice.Spec.Devices[12].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{StringValues: []string{"a", "b"}}
+				slice.Spec.Devices[12].Capacity = nil
+
+				// error: extra version values (list length 2) beyond ResourceSliceMaxAttributeValues.
+				slice.Spec.Devices[13].Attributes = maxStringAttributeValuesInList(resourceapi.ResourceSliceMaxAttributeValuesPerDevice - 1)
+				slice.Spec.Devices[13].Attributes[resourceapi.QualifiedName("extra_attr")] = resourceapi.DeviceAttribute{VersionValues: []string{"1.0.0", "1.0.1"}}
+				slice.Spec.Devices[13].Capacity = nil
 
 				return slice
 			}(),
