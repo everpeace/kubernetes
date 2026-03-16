@@ -167,10 +167,10 @@ var map_DeviceAttribute = map[string]string{
 	"bool":     "BoolValue is a true/false value.",
 	"string":   "StringValue is a string. Must not be longer than 64 characters.",
 	"version":  "VersionValue is a semantic version according to semver.org spec 2.0.0. Must not be longer than 64 characters.",
-	"ints":     "IntValues is a list of numbers.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
-	"bools":    "BoolValues is a list of true/false values.",
-	"strings":  "StringValues is a list of strings. Each string must not be longer than 64 characters.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
-	"versions": "VersionValues is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
+	"ints":     "IntValues is a non-empty list of numbers.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
+	"bools":    "BoolValues is a non-empty list of true/false values.",
+	"strings":  "StringValues is a non-empty list of strings. Each string must not be longer than 64 characters.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
+	"versions": "VersionValues is a non-empty list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
 }
 
 func (DeviceAttribute) SwaggerDoc() map[string]string {

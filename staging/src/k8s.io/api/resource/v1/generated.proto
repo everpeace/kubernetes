@@ -565,7 +565,7 @@ message DeviceAttribute {
   // +k8s:alpha(since: "1.36")=+k8s:unionMember
   optional string version = 5;
 
-  // IntValues is a list of numbers.
+  // IntValues is a non-empty list of numbers.
   //
   // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
   //
@@ -577,7 +577,7 @@ message DeviceAttribute {
   // +featureGate=DRAListTypeAttributes
   repeated int64 ints = 6;
 
-  // BoolValues is a list of true/false values.
+  // BoolValues is a non-empty list of true/false values.
   //
   // +optional
   // +listType=atomic
@@ -587,7 +587,7 @@ message DeviceAttribute {
   // +featureGate=DRAListTypeAttributes
   repeated bool bools = 7;
 
-  // StringValues is a list of strings.
+  // StringValues is a non-empty list of strings.
   // Each string must not be longer than 64 characters.
   //
   // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.
@@ -600,7 +600,7 @@ message DeviceAttribute {
   // +featureGate=DRAListTypeAttributes
   repeated string strings = 8;
 
-  // VersionValues is a list of semantic versions according to semver.org spec 2.0.0.
+  // VersionValues is a non-empty list of semantic versions according to semver.org spec 2.0.0.
   // Each version string must not be longer than 64 characters.
   //
   // This is an alpha field and requires enabling the DRAListTypeAttributes feature gate.

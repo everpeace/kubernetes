@@ -504,7 +504,7 @@
             "type": "boolean"
           },
           "bools": {
-            "description": "BoolValues is a list of true/false values.",
+            "description": "BoolValues is a non-empty list of true/false values.",
             "items": {
               "default": false,
               "type": "boolean"
@@ -518,7 +518,7 @@
             "type": "integer"
           },
           "ints": {
-            "description": "IntValues is a list of numbers.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
+            "description": "IntValues is a non-empty list of numbers.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
             "items": {
               "default": 0,
               "format": "int64",
@@ -532,7 +532,7 @@
             "type": "string"
           },
           "strings": {
-            "description": "StringValues is a list of strings. Each string must not be longer than 64 characters.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
+            "description": "StringValues is a non-empty list of strings. Each string must not be longer than 64 characters.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
             "items": {
               "default": "",
               "type": "string"
@@ -545,7 +545,7 @@
             "type": "string"
           },
           "versions": {
-            "description": "VersionValues is a list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
+            "description": "VersionValues is a non-empty list of semantic versions according to semver.org spec 2.0.0. Each version string must not be longer than 64 characters.\n\nThis is an alpha field and requires enabling the DRAListTypeAttributes feature gate.",
             "items": {
               "default": "",
               "type": "string"
