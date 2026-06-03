@@ -6078,6 +6078,35 @@ func TestAllocator(t *testing.T,
 			expectResults: []any{},
 			expectError:   gomega.MatchError(gomega.ContainSubstring("unsupported attribute value")),
 		},
+		"list-attributes-disabled-selector-includes-with-list-values": {
+			features: Features{
+				ListTypeAttributes: false,
+			},
+			claimsToAllocate: objects(claimWithRequests(
+				claim0,
+				nil,
+				request(req0, classA, 1, resourceapi.DeviceSelector{
+					CEL: &resourceapi.CELDeviceSelector{
+						Expression: fmt.Sprintf(`device.attributes["%s"].stringAttribute.includes("value1")`, driverA),
+					},
+				}),
+			)),
+			classes: objects(class(classA, driverA)),
+			slices: unwrapResourceSlices(sliceWithDevices(slice1, node1, pool1, driverA,
+				device(device1, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
+					"stringAttribute": {StringValues: []string{"value1", "value2"}},
+				}),
+				device(device2, nil, map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{
+					"stringAttribute": {StringValues: []string{"value2", "value3"}},
+				}),
+			)),
+			node: node(node1, region1),
+
+			expectResults: []any{allocationResult(
+				localNodeSelector(node1),
+				deviceAllocationResult(req0, driverA, pool1, device1, false),
+			)},
+		},
 		"list-attributes-distinct-constraint-scalar-string-values-all-distinct": {
 			features: Features{
 				ListTypeAttributes: true,

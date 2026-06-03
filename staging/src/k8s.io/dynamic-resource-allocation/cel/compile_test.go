@@ -198,34 +198,34 @@ var testcases = map[string]struct {
 	"list-of-bool": {
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].names.size() == 2`,
+		expression:               `device.attributes["dra.example.com"].names`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"names": {BoolValues: []bool{true, false}}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               6,
+		expectCost:               4,
 	},
 	"list-of-int": {
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].names.size() == 2`,
+		expression:               `device.attributes["dra.example.com"].names > 0`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"names": {IntValues: []int64{1, 2}}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               6,
+		expectCost:               5,
 	},
 	"list-of-string": {
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].names.size() == 2`,
+		expression:               `device.attributes["dra.example.com"].names == "fish"`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"names": {StringValues: []string{"fish", "bird"}}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               6,
+		expectCost:               5,
 	},
 	"list-of-semver": {
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].names.size() == 2`,
+		expression:               `device.attributes["dra.example.com"].names.isGreaterThan(semver("0.0.1"))`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"names": {VersionValues: []string{"1.0.0", "2.0.0"}}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
@@ -234,29 +234,29 @@ var testcases = map[string]struct {
 	"macro-on-list-of-int": {
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].names.exists(x, x > 0)`,
+		expression:               `device.attributes["dra.example.com"].names.asList().exists(x, x > 0)`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"names": {IntValues: []int64{1, 2}}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               5 + ((3 + 3) * maxElementsListTypeEnabled /* (cost(loopCondition=="not_strictly_false(!accu)") + cost(loopStep=="accu && (x > 0)")) * maxElementsListTypeEnabled */),
+		expectCost:               390,
 	},
 	"macro-on-list-of-string": {
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].names.all(x, x != "")`,
+		expression:               `device.attributes["dra.example.com"].names.asList().all(x, x != "")`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"names": {StringValues: []string{"fish", "bird"}}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               5 + ((2 + 2) * maxElementsListTypeEnabled /* (cost(loopCondition=="not_strictly_false(accu)") + cost(loopStep=="accu && (x != "")")) * maxElementsListTypeEnabled */),
+		expectCost:               262,
 	},
 	"macro-on-list-of-semver": {
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `device.attributes["dra.example.com"].names.all(x, x.isGreaterThan(semver("0.0.1")))`,
+		expression:               `device.attributes["dra.example.com"].names.asList().all(x, x.isGreaterThan(semver("0.0.1")))`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"names": {VersionValues: []string{"1.0.0", "2.0.0"}}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               5 + ((2 + 4) * maxElementsListTypeEnabled /* (cost(loopCondition=="not_strictly_false(accu)") + cost(loopStep=="accu && (x.isGreaterThan(semver("0.0.1"))")) * maxElementsListTypeEnabled */),
+		expectCost:               390,
 	},
 	"includes-function-undeclared-error": {
 		enableConsumableCapacity: false,
@@ -427,10 +427,10 @@ var testcases = map[string]struct {
 		expectMatch: false,
 		expectCost:  4 + 48, /* cost of "includes" is max list length */
 	},
-	"includes-function-on-very-long-list-runtime-error": {
+	"includes-function-on-very-long-list-runtime-error-with-as-list": {
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               fmt.Sprintf(`device.attributes["dra.example.com"].name.includes("value-%d")`, resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1),
+		expression:               fmt.Sprintf(`device.attributes["dra.example.com"].name.asList().includes("value-%d")`, resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1),
 		attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValues: func() []string {
 			values := make([]string, resourceapi.ResourceSliceMaxAttributeValuesPerDevice+1)
 			for i := range values {
@@ -440,7 +440,7 @@ var testcases = map[string]struct {
 		}()}},
 		driver:           "dra.example.com",
 		expectMatchError: fmt.Sprintf("'includes' function cannot be applied to lists longer than %d values", resourceapi.ResourceSliceMaxAttributeValuesPerDevice),
-		expectCost:       4 + 48, /* cost of "includes" is max list length */
+		expectCost:       53, /* asList + includes */
 	},
 	"in-operator-on-list": {
 		// This case is for documenting purpose to present the difference of call cost estimation
@@ -451,11 +451,11 @@ var testcases = map[string]struct {
 		// (MaxElements in AttributeType(cel.DeclType)) as this operator is CEL standard one.
 		enableListTypeAttributes: new(true),
 		envType:                  ptr.To(environment.NewExpressions),
-		expression:               `1 in device.attributes["dra.example.com"].names`,
+		expression:               `1 in device.attributes["dra.example.com"].names.asList()`,
 		attributes:               map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"names": {IntValues: []int64{1, 2, 3}}},
 		driver:                   "dra.example.com",
 		expectMatch:              true,
-		expectCost:               4 + 64, /* cost of "in" is maxElementsListTypeEnabled*/
+		expectCost:               69,
 	},
 	"version": {
 		expression:  `device.attributes["dra.example.com"].name.isGreaterThan(semver("0.0.1"))`,
@@ -724,6 +724,278 @@ func TestCEL(t *testing.T) {
 				run(t, *scenario.enableListTypeAttributes)
 			})
 		}
+	}
+}
+
+func TestListTypeAttributeSemantics(t *testing.T) {
+	_, ctx := ktesting.NewTestContext(t)
+
+	eval := func(t *testing.T, expression string, attributes map[resourceapi.QualifiedName]resourceapi.DeviceAttribute) (bool, error) {
+		t.Helper()
+		result := GetCompiler(Features{EnableListTypeAttributes: true}).CompileCELExpression(expression, Options{
+			EnvType:               ptr.To(environment.NewExpressions),
+			DisableCostEstimation: true,
+		})
+		if result.Error != nil {
+			t.Fatalf("unexpected compile error for %q: %v", expression, result.Error)
+		}
+
+		match, _, err := result.DeviceMatches(ctx, Device{
+			Driver:     "foo",
+			Attributes: attributes,
+		})
+		return match, err
+	}
+
+	type testCase struct {
+		name        string
+		expression  string
+		attributes  map[resourceapi.QualifiedName]resourceapi.DeviceAttribute
+		wantMatch   bool
+		wantErrLike string
+	}
+
+	testCases := []testCase{
+		// device.attributes["foo"].attributeName: scalar -> that value, list -> first value.
+		{
+			name:       "attribute-access-bool-scalar",
+			expression: `device.attributes["foo"].name`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValue: ptr.To(true)}},
+			wantMatch:  true,
+		},
+		{
+			name:       "attribute-access-bool-list-uses-first",
+			expression: `device.attributes["foo"].name`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValues: []bool{false, true}}},
+			wantMatch:  false,
+		},
+		{
+			name:       "attribute-access-int-scalar",
+			expression: `device.attributes["foo"].name > 6 && device.attributes["foo"].name < 8`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValue: ptr.To(int64(7))}},
+			wantMatch:  true,
+		},
+		{
+			name:       "attribute-access-int-list-uses-first",
+			expression: `device.attributes["foo"].name > 6 && device.attributes["foo"].name < 8`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValues: []int64{7, 9}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "attribute-access-string-scalar",
+			expression: `device.attributes["foo"].name == "fish"`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValue: ptr.To("fish")}},
+			wantMatch:  true,
+		},
+		{
+			name:       "attribute-access-string-list-uses-first",
+			expression: `device.attributes["foo"].name == "fish"`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValues: []string{"fish", "bird"}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "attribute-access-semver-scalar",
+			expression: `device.attributes["foo"].name.isGreaterThan(semver("1.1.0"))`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValue: ptr.To("1.2.0")}},
+			wantMatch:  true,
+		},
+		{
+			name:       "attribute-access-semver-list-uses-first",
+			expression: `device.attributes["foo"].name.isGreaterThan(semver("1.1.0"))`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValues: []string{"1.2.0", "2.0.0"}}},
+			wantMatch:  true,
+		},
+
+		// device.attributes["foo"].attributeName.asList(): scalar -> singleton, list -> original list.
+		{
+			name:       "as-list-bool-scalar-singleton",
+			expression: `device.attributes["foo"].name.asList().size() == 1 && device.attributes["foo"].name.asList()[0] == true`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValue: ptr.To(true)}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-bool-list-original",
+			expression: `device.attributes["foo"].name.asList().size() == 2 && device.attributes["foo"].name.asList()[1] == true`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValues: []bool{false, true}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-int-scalar-singleton",
+			expression: `device.attributes["foo"].name.asList().size() == 1 && device.attributes["foo"].name.asList()[0] == 7`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValue: ptr.To(int64(7))}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-int-list-original",
+			expression: `device.attributes["foo"].name.asList().size() == 2 && device.attributes["foo"].name.asList()[1] == 9`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValues: []int64{7, 9}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-string-scalar-singleton",
+			expression: `device.attributes["foo"].name.asList().size() == 1 && device.attributes["foo"].name.asList()[0] == "fish"`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValue: ptr.To("fish")}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-string-list-original",
+			expression: `device.attributes["foo"].name.asList().size() == 2 && device.attributes["foo"].name.asList()[1] == "bird"`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValues: []string{"fish", "bird"}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-semver-scalar-singleton",
+			expression: `device.attributes["foo"].name.asList().size() == 1 && device.attributes["foo"].name.asList()[0].isGreaterThan(semver("1.1.0"))`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValue: ptr.To("1.2.0")}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-semver-list-original",
+			expression: `device.attributes["foo"].name.asList().size() == 2 && device.attributes["foo"].name.asList()[1].isGreaterThan(semver("1.9.0"))`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValues: []string{"1.2.0", "2.0.0"}}},
+			wantMatch:  true,
+		},
+
+		// device.attributes["foo"].includes(x): scalar -> scalar match, list -> first-element match.
+		{
+			name:       "includes-bool-scalar-true",
+			expression: `device.attributes["foo"].name.includes(true)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValue: ptr.To(true)}},
+			wantMatch:  true,
+		},
+		{
+			name:       "includes-bool-scalar-false",
+			expression: `device.attributes["foo"].name.includes(false)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValue: ptr.To(true)}},
+			wantMatch:  false,
+		},
+		{
+			name:       "includes-bool-list-first-true",
+			expression: `device.attributes["foo"].name.includes(true)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValues: []bool{true, false}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "includes-bool-list-first-false",
+			expression: `device.attributes["foo"].name.includes(true)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValues: []bool{false, true}}},
+			wantMatch:  false,
+		},
+		{
+			name:       "includes-int-list-matches-first-only",
+			expression: `device.attributes["foo"].name.includes(9)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValues: []int64{7, 9}}},
+			wantMatch:  false,
+		},
+		{
+			name:       "includes-string-list-matches-first-only",
+			expression: `device.attributes["foo"].name.includes("bird")`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValues: []string{"fish", "bird"}}},
+			wantMatch:  false,
+		},
+		{
+			name:       "includes-semver-list-matches-first-only",
+			expression: `device.attributes["foo"].name.includes(semver("2.0.0"))`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValues: []string{"1.2.0", "2.0.0"}}},
+			wantMatch:  false,
+		},
+
+		// device.attributes["foo"].asList().includes(x): scalar -> scalar match, list -> full-list containment.
+		{
+			name:       "as-list-includes-bool-list-searches-all",
+			expression: `device.attributes["foo"].name.asList().includes(true)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValues: []bool{false, true}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-includes-int-list-searches-all",
+			expression: `device.attributes["foo"].name.asList().includes(9)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValues: []int64{7, 9}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-includes-string-list-searches-all",
+			expression: `device.attributes["foo"].name.asList().includes("bird")`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValues: []string{"fish", "bird"}}},
+			wantMatch:  true,
+		},
+		{
+			name:       "as-list-includes-semver-list-searches-all",
+			expression: `device.attributes["foo"].name.asList().includes(semver("2.0.0"))`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValues: []string{"1.2.0", "2.0.0"}}},
+			wantMatch:  true,
+		},
+
+		// Macros: attributeName errors, attributeName.asList() works.
+		{
+			name:        "macro-on-bool-list-without-as-list-errors",
+			expression:  `device.attributes["foo"].name.exists(x, x == true)`,
+			attributes:  map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValues: []bool{true, false}}},
+			wantErrLike: "expected iterable type",
+		},
+		{
+			name:       "macro-on-bool-list-with-as-list-works",
+			expression: `device.attributes["foo"].name.asList().exists(x, x == true)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {BoolValues: []bool{true, false}}},
+			wantMatch:  true,
+		},
+		{
+			name:        "macro-on-int-list-without-as-list-errors",
+			expression:  `device.attributes["foo"].name.exists(x, x > 0)`,
+			attributes:  map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValues: []int64{7, 9}}},
+			wantErrLike: "expected iterable type",
+		},
+		{
+			name:       "macro-on-int-list-with-as-list-works",
+			expression: `device.attributes["foo"].name.asList().exists(x, x > 0)`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {IntValues: []int64{7, 9}}},
+			wantMatch:  true,
+		},
+		{
+			name:        "macro-on-string-list-without-as-list-errors",
+			expression:  `device.attributes["foo"].name.all(x, x != "")`,
+			attributes:  map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValues: []string{"fish", "bird"}}},
+			wantErrLike: "expected iterable type",
+		},
+		{
+			name:       "macro-on-string-list-with-as-list-works",
+			expression: `device.attributes["foo"].name.asList().all(x, x != "")`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {StringValues: []string{"fish", "bird"}}},
+			wantMatch:  true,
+		},
+		{
+			name:        "macro-on-semver-list-without-as-list-errors",
+			expression:  `device.attributes["foo"].name.exists(x, x.isGreaterThan(semver("0.0.1")))`,
+			attributes:  map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValues: []string{"1.2.0", "2.0.0"}}},
+			wantErrLike: "expected iterable type",
+		},
+		{
+			name:       "macro-on-semver-list-with-as-list-works",
+			expression: `device.attributes["foo"].name.asList().exists(x, x.isGreaterThan(semver("0.0.1")))`,
+			attributes: map[resourceapi.QualifiedName]resourceapi.DeviceAttribute{"name": {VersionValues: []string{"1.2.0", "2.0.0"}}},
+			wantMatch:  true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			match, err := eval(t, tc.expression, tc.attributes)
+			if tc.wantErrLike != "" {
+				if err == nil {
+					t.Fatalf("expected evaluation error containing %q, got none", tc.wantErrLike)
+				}
+				if !strings.Contains(err.Error(), tc.wantErrLike) {
+					t.Fatalf("expected evaluation error containing %q, got %v", tc.wantErrLike, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected evaluation error: %v", err)
+			}
+			if match != tc.wantMatch {
+				t.Fatalf("expected match %v, got %v", tc.wantMatch, match)
+			}
+		})
 	}
 }
 

@@ -253,12 +253,24 @@ func (c CompilationResult) getAttributeValue(attr resourceapi.DeviceAttribute) (
 	if c.features.EnableListTypeAttributes {
 		switch {
 		case attr.IntValues != nil:
-			return attr.IntValues, nil
+			if len(attr.IntValues) == 0 {
+				return nil, errors.New("empty int list")
+			}
+			return newListBackedScalar(attr.IntValues[0], attr.IntValues), nil
 		case attr.BoolValues != nil:
-			return attr.BoolValues, nil
+			if len(attr.BoolValues) == 0 {
+				return nil, errors.New("empty bool list")
+			}
+			return newListBackedScalar(attr.BoolValues[0], attr.BoolValues), nil
 		case attr.StringValues != nil:
-			return attr.StringValues, nil
+			if len(attr.StringValues) == 0 {
+				return nil, errors.New("empty string list")
+			}
+			return newListBackedScalar(attr.StringValues[0], attr.StringValues), nil
 		case attr.VersionValues != nil:
+			if len(attr.VersionValues) == 0 {
+				return nil, errors.New("empty semantic version list")
+			}
 			semVers := make([]apiservercel.Semver, len(attr.VersionValues))
 			for i, versionStr := range attr.VersionValues {
 				v, err := semver.Parse(versionStr)
@@ -267,7 +279,7 @@ func (c CompilationResult) getAttributeValue(attr resourceapi.DeviceAttribute) (
 				}
 				semVers[i] = apiservercel.Semver{Version: v}
 			}
-			return semVers, nil
+			return newListBackedScalar(semVers[0], semVers), nil
 		}
 	}
 	switch {
@@ -441,6 +453,21 @@ func newCompiler(features Features) *compiler {
 				),
 			},
 		},
+		{
+			IntroducedVersion: version.MajorMinor(1, 36),
+			FeatureEnabled: func() bool {
+				return features.EnableListTypeAttributes
+			},
+			EnvOptions: []cel.EnvOption{
+				cel.Function("asList",
+					cel.MemberOverload("dra_asList_dyn",
+						[]*cel.Type{cel.DynType},
+						cel.ListType(cel.DynType),
+						cel.UnaryBinding(asListFunc),
+					),
+				),
+			},
+		},
 	}
 	envset, err := envset.Extend(versioned...)
 	if err != nil {
@@ -448,6 +475,23 @@ func newCompiler(features Features) *compiler {
 	}
 	// return with newest deviceType
 	return &compiler{envset: envset, deviceType: deviceTypeV134ConsumableCapacity, features: features, attributeType: attributeType}
+}
+
+// asListFunc implements the "asList" function for CEL (<target>.asList()),
+// which converts the target to a list if it is not already a list.
+// If the target is a scalar, it returns a list containing the target as its only element.
+// If the target is already a list, it returns the target as is.
+// If the target is a list-backed scalar attribute value, it returns the original list.
+// The target is expected to be a scalar or list attribute, but users can
+// technically call "asList" on any value.
+func asListFunc(target ref.Val) ref.Val {
+	if scalar, ok := target.(listBackedScalarValue); ok {
+		return scalar.asList()
+	}
+	if list, ok := target.(traits.Lister); ok {
+		return list
+	}
+	return types.NewRefValList(types.DefaultTypeAdapter, []ref.Val{target})
 }
 
 // includesFunc implements the "includes" function for CEL (<target>.includes(<arg>)),
@@ -540,6 +584,22 @@ func (e *draCostEstimator) EstimateCallCost(function, overloadID string, target 
 		if target != nil {
 			targetSizeEstimate := checker.SizeEstimate{Min: 0, Max: resourceapi.ResourceSliceMaxAttributeValuesPerDevice}
 			return &checker.CallEstimate{CostEstimate: targetSizeEstimate.MultiplyByCost(checker.CostEstimate{Min: 1, Max: 1})}
+		}
+	}
+
+	if function == "asList" && overloadID == "dra_asList_dyn" {
+		// asList returns either the original list value or wraps a scalar into a
+		// singleton list. For DRA attribute values, the target size estimate is a
+		// safe upper bound for resulting list length.
+		resultSize := checker.SizeEstimate{Min: 0, Max: resourceapi.ResourceSliceMaxAttributeValuesPerDevice}
+		if target != nil {
+			if targetSize := (*target).ComputedSize(); targetSize != nil {
+				resultSize = *targetSize
+			}
+		}
+		return &checker.CallEstimate{
+			CostEstimate: checker.CostEstimate{Min: 1, Max: 1},
+			ResultSize:   &resultSize,
 		}
 	}
 
