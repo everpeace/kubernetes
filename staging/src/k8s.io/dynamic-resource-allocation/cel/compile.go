@@ -104,14 +104,6 @@ type CompilationResult struct {
 
 	emptyMapVal ref.Val
 
-	// allowListTypeAttributesInEval controls whether list-typed attribute values
-	// are decoded during expression evaluation.
-	//
-	// This depends on the compilation context:
-	// - stored expressions accept list-typed attributes for skew-safe evaluation
-	// - new expressions follow feature-gated behavior
-	allowListTypeAttributesInEval bool
-
 	features Features
 }
 
@@ -162,23 +154,19 @@ type Options struct {
 //
 // TODO (https://github.com/kubernetes/kubernetes/issues/125826): validate AST to detect invalid attribute names.
 func (c compiler) CompileCELExpression(expression string, options Options) CompilationResult {
-	envType := ptr.Deref(options.EnvType, environment.StoredExpressions)
-	allowListTypeAttributesInEval := envType == environment.StoredExpressions || c.features.EnableListTypeAttributes
-
 	resultError := func(errorString string, errType apiservercel.ErrorType) CompilationResult {
 		return CompilationResult{
 			Error: &apiservercel.Error{
 				Type:   errType,
 				Detail: errorString,
 			},
-			Expression:                    expression,
-			MaxCost:                       math.MaxUint64,
-			allowListTypeAttributesInEval: allowListTypeAttributesInEval,
-			features:                      c.features,
+			Expression: expression,
+			MaxCost:    math.MaxUint64,
+			features:   c.features,
 		}
 	}
 
-	env, err := c.envset.Env(envType)
+	env, err := c.envset.Env(ptr.Deref(options.EnvType, environment.StoredExpressions))
 	if err != nil {
 		return resultError(fmt.Sprintf("unexpected error loading CEL environment: %v", err), apiservercel.ErrorTypeInternal)
 	}
@@ -188,18 +176,11 @@ func (c compiler) CompileCELExpression(expression string, options Options) Compi
 		return resultError("compilation failed: "+issues.String(), apiservercel.ErrorTypeInvalid)
 	}
 
-	// When the DRAListTypeAttributes feature is enabled,
-	// we use DynType instead of AnyType for the attributes
-	// so that standard iterate functions(e.g., exists, all etc.)
-	// and overridden includes function can work (See newCompiler() for details).
-	// Thus, the unknown return type can also be DynType, not just AnyType as before.
-	//
 	// This has to be valid because the end result of a CEL expression might be
-	// a boolean attribute, which then has AnyType/DynType.
+	// a boolean attribute, which then has DynType.
 	expectedReturnType := cel.BoolType
 	if ast.OutputType() == expectedReturnType ||
-		ast.OutputType() == cel.AnyType ||
-		c.features.EnableListTypeAttributes && ast.OutputType() == cel.DynType {
+		ast.OutputType() == cel.DynType {
 		// Okay, is one of the acceptable types.
 	} else {
 		return resultError(fmt.Sprintf("must evaluate to %v or the unknown type, not %v", expectedReturnType.String(), ast.OutputType().String()), apiservercel.ErrorTypeInvalid)
@@ -222,14 +203,13 @@ func (c compiler) CompileCELExpression(expression string, options Options) Compi
 	}
 
 	compilationResult := CompilationResult{
-		Program:                       prog,
-		Expression:                    expression,
-		OutputType:                    ast.OutputType(),
-		Environment:                   env,
-		emptyMapVal:                   env.CELTypeAdapter().NativeToValue(map[string]any{}),
-		MaxCost:                       math.MaxUint64,
-		allowListTypeAttributesInEval: allowListTypeAttributesInEval,
-		features:                      c.features,
+		Program:     prog,
+		Expression:  expression,
+		OutputType:  ast.OutputType(),
+		Environment: env,
+		emptyMapVal: env.CELTypeAdapter().NativeToValue(map[string]any{}),
+		MaxCost:     math.MaxUint64,
+		features:    c.features,
 	}
 
 	if !options.DisableCostEstimation {
@@ -256,27 +236,23 @@ func (c *compiler) newCostEstimator() checker.CostEstimator {
 // should be stored in the attribute, otherwise an error. An error is
 // also returned when there is no supported value.
 func (c CompilationResult) getAttributeValue(attr resourceapi.DeviceAttribute) (any, error) {
-	if c.allowListTypeAttributesInEval {
-		switch {
-		case attr.IntValues != nil:
-			return attr.IntValues, nil
-		case attr.BoolValues != nil:
-			return attr.BoolValues, nil
-		case attr.StringValues != nil:
-			return attr.StringValues, nil
-		case attr.VersionValues != nil:
-			semVers := make([]apiservercel.Semver, len(attr.VersionValues))
-			for i, versionStr := range attr.VersionValues {
-				v, err := semver.Parse(versionStr)
-				if err != nil {
-					return nil, fmt.Errorf("parse semantic version: %w", err)
-				}
-				semVers[i] = apiservercel.Semver{Version: v}
-			}
-			return semVers, nil
-		}
-	}
 	switch {
+	case attr.IntValues != nil:
+		return attr.IntValues, nil
+	case attr.BoolValues != nil:
+		return attr.BoolValues, nil
+	case attr.StringValues != nil:
+		return attr.StringValues, nil
+	case attr.VersionValues != nil:
+		semVers := make([]apiservercel.Semver, len(attr.VersionValues))
+		for i, versionStr := range attr.VersionValues {
+			v, err := semver.Parse(versionStr)
+			if err != nil {
+				return nil, fmt.Errorf("parse semantic version: %w", err)
+			}
+			semVers[i] = apiservercel.Semver{Version: v}
+		}
+		return semVers, nil
 	case attr.IntValue != nil:
 		return *attr.IntValue, nil
 	case attr.BoolValue != nil:
@@ -363,20 +339,17 @@ func newCompiler(features Features) *compiler {
 		return result
 	}
 
-	attributeType := withMaxElements(apiservercel.AnyType, resourceapi.DeviceAttributeMaxValueLength)
-	if features.EnableListTypeAttributes {
-		attributeType = withMaxElements(
-			// use DynType instead of AnyType so that iterate functions can work(e.g., exists, all, etc.)
-			apiservercel.DynType,
-			// When DRAListTypeAttributes feature gate is enabled, we cannot
-			// determine statically whether an attribute will be a scalar or a list
-			// at compile time. MaxElements should describe
-			// - the max number of items when it's a list.
-			// - the max length of the string representation when it's a scalar.
-			// Thus, we set it to the larger one of the two cases.
-			uint64(max(resourceapi.DeviceAttributeMaxValueLength, resourceapi.ResourceSliceMaxAttributeValuesPerDevice)),
-		)
-	}
+	attributeType := withMaxElements(
+		// use DynType so that iterate functions can work(e.g., exists, all, etc.) for list type attributes
+		apiservercel.DynType,
+		// For list type attributes,
+		// we cannot determine statically whether an attribute will be a scalar or a list
+		// at compile time. MaxElements should describe
+		// - the max number of items when it's a list.
+		// - the max length of the string representation when it's a scalar.
+		// Thus, we set it to the larger one of the two cases.
+		uint64(max(resourceapi.DeviceAttributeMaxValueLength, resourceapi.ResourceSliceMaxAttributeValuesPerDevice)),
+	)
 	// Each map is bound by the maximum number of different attributes.
 	innerAttributesMapType := apiservercel.NewMapType(idType, attributeType, resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)
 	outerAttributesMapType := apiservercel.NewMapType(domainType, innerAttributesMapType, resourceapi.ResourceSliceMaxAttributesAndCapacitiesPerDevice)
